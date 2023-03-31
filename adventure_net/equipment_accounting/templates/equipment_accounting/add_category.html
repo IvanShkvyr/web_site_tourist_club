@@ -1,0 +1,11 @@
+
+
+<form method="POST" action="{% url 'equipment:add_category' %}">
+    {% csrf_token %}
+    <div class="pole" >
+        <label class="pole__label">Enter equipment category name: </label>
+        <input class="pole__input" type="text" name="equipment_category_name">
+        <span>{{form.errors.equipment_category_name}}</span>
+    </div>
+    <button class="change__button_g" type="submit">Submit</button>
+</form>
