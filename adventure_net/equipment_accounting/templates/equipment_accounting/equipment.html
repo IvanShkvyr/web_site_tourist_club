@@ -1,0 +1,15 @@
+<a href="{% url 'equipment:add_category' %}" role="button">Add equipment</a>
+
+
+<ul class="list" >
+    {% for equipment in equipments%}
+    <li class="items" >
+      <h1>{{equipment.equipment_category_name}}</h1>
+      <div>
+
+      <a href="{% url 'equipment:change_category' equipment.id %}" role="button"><button class="button_g" type="button"> Change</button></a>
+      <a href="{% url 'equipment:delete_category' equipment.id %}" role="button" class="contrast"><button class="button_r" type="button"> Delete</button></a>
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
