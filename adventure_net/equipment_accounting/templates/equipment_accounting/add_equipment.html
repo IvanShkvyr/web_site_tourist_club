@@ -1,4 +1,22 @@
 
+<!-- <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+
+    <div class="form-group">
+      <label for="categories">Equipment category:</label>
+      <select name="categories" class="form-control" id="categories">
+        {% for category in categories %}
+        <option value="{{ category.equipment_category_name }}">{{ category.equipment_category_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form> -->
+
+
+
 
 <form method="POST" action="{% url 'equipment:add_equipment' %}">
     {% csrf_token %}
@@ -9,7 +27,8 @@
     </div>
     <div class="pole" >
         <label class="pole__label">weight of equipment kg: </label>
-        {{form.weight_of_equipment_kg}}
+        <input class="pole__input" type="text" name="weight_of_equipment_kg">
+        <!-- {{form.weight_of_equipment_kg}} -->
         <span>{{form.errors.weight_of_equipment_kg}}</span>
 
     </div>
@@ -19,23 +38,22 @@
         <span>{{form.errors.photo_of_equipment}}</span>
     </div>
 
-    <!-- <div style="padding: 10px">
+    <div>
         <label> Choose equipmant category:
-            <select name="category" multiple="multiple" required>
+            <select name="categories" required>
                 {% for category in categories %}
                 <option value="{{category.equipment_category_name}}">{{category.equipment_category_name}}</option>
                 {% endfor %}
             </select>
         </label>
-    </div> -->
+    </div>
 
     <div class="grid">
         <button class="change__button_g" type="submit">Submit</button>
         <button type="reset" class="secondary">Скинути</button>
     </div>
 
-
-
+    
 </form>
 
 
