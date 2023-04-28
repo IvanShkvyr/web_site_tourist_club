@@ -13,11 +13,11 @@ def checker(request):
 
 
 def get_category(request):
-    equipments = EquipmentsCategories.objects.all()
+    categories = EquipmentsCategories.objects.all()
     return render(
                     request,
                     "equipment_accounting/category.html",
-                    context={"equipments": equipments}
+                    context={"categories": categories}
                 )
 
 
@@ -65,55 +65,60 @@ def delete_category(request, category_id):
 
 
 def get_equipments(request):
-    pass
+    equipments = Equipments.objects.all()
+    return render(
+                    request,
+                    "equipment_accounting/equipment.html",
+                    context={"equipments": equipments}
+                )
 
 
 def add_equipment(request):
     categories = EquipmentsCategories.objects.all()
     if request.method == "POST":
         form = EquipmentsForm(request.POST)
-        print("3-----------------")
-        print(form)
-        print("4-----------------")
+        if form.is_valid():
+            equipments = form.save()
+            choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
+            for category in choise_categories:
+                equipments.equipment_category.add(category)
+
+            return redirect(to="equipment:get_equipments")
+        else:
+            return render(request, "equipment_accounting/add_equipment.html", context={'form': form, 'categories': categories})
+    return render(request, "equipment_accounting/add_equipment.html", context={'form': EquipmentsForm(), 'categories': categories})
+
+
+def detail_equipment(request, equipment_id):
+    equipment = get_object_or_404(Equipments, pk=equipment_id)
+    return render(request, 'equipment_accounting/detail.html', context={'equipment': equipment})
+
+
+def change_equipment(request, equipment_id):
+    equipment = get_object_or_404(Equipments, pk=equipment_id)
+    if request.method == "POST":
+        form = EquipmentsForm(request.POST)
         if form.is_valid():
 
-            print(form)
-            print("5-----------------")
-            data_equipment = form.save(commit=False)
-            data_equipment.save()
-            # choice_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist('categories'))
-            # for category in choice_categories:
-            #     data_equipment.equipment_category.add(category)
-
-            return redirect(to='equipment:get_equipments')
+            Equipments.objects.filter(pk=equipment_id).update(
+                equipment_name=request.POST["equipment_name"],
+                weight_of_equipment_kg=request.POST["weight_of_equipment_kg"],
+                photo_of_equipment=request.POST["photo_of_equipment"],
+                now_booked=request.POST["now_booked"],
+                )
+            return redirect(to="equipment:get_equipments")
         else:
             return render(
-                            request,
-                            "equipment_accounting/add_equipment.html",
-                            context={"form": form, "categories": categories}
-                        )
-    return render(
-                    request,
-                    "equipment_accounting/add_equipment.html",
-                    context={"form": EquipmentsForm(), "categories": categories}
-                 )
-
-    #         data_equipment_categorie = form.save(commit=False)
-    #         data_equipment_categorie.save()
-    #         return redirect(to='equipment:get_category')
-    #     else:
+                request, "equipment_accounting/change_equipment.html", context={"form": form}
+            )
+    return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment})
 
 
+def delete_equipment(request, equipment_id):
+    if request.method == "POST":
+        Equipments.objects.filter(pk=equipment_id).delete()
+        return redirect(to="equipment:get_equipments")
+    return render(request, "equipment_accounting/delete_equipment.html")
 
 
-def detail_equipment(request, category_id):
-    pass
-
-
-def change_equipment(request, category_id):
-    pass
-
-
-def delete_equipment(request, category_id):
-    pass
 
