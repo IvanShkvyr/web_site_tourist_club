@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from .models import Equipments, EquipmentsCategories
+from .forms import EquipmentsCategoriesForm
 
 class CheckerVeiwTest(TestCase):
 
@@ -11,6 +12,11 @@ class CheckerVeiwTest(TestCase):
 
 
 class EquipmentViewTest(TestCase):
+
+    def setUp(self):
+        Equipments.objects.create(equipment_name="new_equipment", weight_of_equipment_kg=120,
+    photo_of_equipment="new_photo")
+
 
     def test_get_equipments(self):
         response = self.client.get("/equipment/")
@@ -39,6 +45,27 @@ class CategoruViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(EquipmentsCategories.objects.count(), 2)
         self.assertRedirects(response, reverse("equipment:get_category"))
+
+    def test_valid_form(self):
+        data = {"equipment_category_name": "valid_value"}
+        form = EquipmentsCategoriesForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_max_length_of_category_name(self):
+        data = {"equipment_category_name": "this_value_is_greater_than_twenty_symbols"}
+        form = EquipmentsCategoriesForm(data=data)
+        self.assertFalse(form.is_valid())
+        response = self.client.post(reverse("equipment:add_category"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "equipment_accounting/add_category.html")
+
+    def test_min_length_of_category_name(self):
+        data = {"equipment_category_name": "ab"}
+        form = EquipmentsCategoriesForm(data=data)
+        self.assertFalse(form.is_valid())
+        response = self.client.post(reverse("equipment:add_category"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "equipment_accounting/add_category.html")
 
     def test_change_category(self):
         category1 = EquipmentsCategories.objects.get(equipment_category_name="Category1")
