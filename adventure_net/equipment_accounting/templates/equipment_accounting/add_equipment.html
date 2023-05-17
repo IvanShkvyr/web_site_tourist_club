@@ -1,23 +1,4 @@
 
-<!-- <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-
-    <div class="form-group">
-      <label for="categories">Equipment category:</label>
-      <select name="categories" class="form-control" id="categories">
-        {% for category in categories %}
-        <option value="{{ category.equipment_category_name }}">{{ category.equipment_category_name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form> -->
-
-
-
-
 <form method="POST" action="{% url 'equipment:add_equipment' %}">
     {% csrf_token %}
     <div class="pole" >
@@ -38,6 +19,14 @@
         <span>{{form.errors.photo_of_equipment}}</span>
     </div>
 
+
+    <div class="pole">
+        <label class="pole__label">Now booked:</label>
+        <select name="now_booked">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select>
+    </div>
     <div>
         <label> Choose equipmant category:
             <select name="categories" required>

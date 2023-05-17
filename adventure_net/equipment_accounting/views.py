@@ -78,10 +78,13 @@ def add_equipment(request):
     if request.method == "POST":
         form = EquipmentsForm(request.POST)
         if form.is_valid():
-            equipments = form.save()
+            equipment = form.save(commit=False)
+            equipment.now_booked = form.cleaned_data['now_booked']
+            equipment.save()
+
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
-                equipments.equipment_category.add(category)
+                equipment.equipment_category.add(category)
 
             return redirect(to="equipment:get_equipments")
         else:
