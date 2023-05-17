@@ -1,3 +1,5 @@
+import unittest
+
 from django.test import TestCase
 from django.urls import reverse
 from .models import Equipments, EquipmentsCategories
@@ -14,19 +16,87 @@ class CheckerVeiwTest(TestCase):
 class EquipmentViewTest(TestCase):
 
     def setUp(self):
-        Equipments.objects.create(equipment_name="new_equipment", weight_of_equipment_kg=120,
-    photo_of_equipment="new_photo")
-
+        category = EquipmentsCategories.objects.create(equipment_category_name="Category1")
+        equipment = Equipments.objects.create(
+            equipment_name="new_equipment",
+            weight_of_equipment_kg=120,
+            photo_of_equipment="new_photo",
+            now_booked=True,
+        )
+        equipment.equipment_category.add(category)
 
     def test_get_equipments(self):
         response = self.client.get("/equipment/")
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "equipment_accounting/equipment.html")
+        self.assertEqual(Equipments.objects.count(), 1)
 
+        equipment = Equipments.objects.get(equipment_name="new_equipment")
+
+        self.assertIsNotNone(equipment)
+        self.assertEqual(equipment.equipment_name, "new_equipment")
+
+    # @unittest.skip
     def test_add_equipment(self):
+
         response = self.client.get("/equipment/add_equipment/")
+        data = {
+            "equipment_name": "new_equipment_2",
+            "weight_of_equipment_kg": 123,
+            "photo_of_equipment": "new_photo_2",
+            "equipment_category": [EquipmentsCategories.objects.get(equipment_category_name="Category1")],
+            "now_booked":True,
+            }
+        
         self.assertEqual(response.status_code, 200)
 
+        new_response = self.client.post(reverse("equipment:add_equipment"), data)
 
+        self.assertEqual(new_response.status_code, 302)
+        self.assertEqual(Equipments.objects.count(), 2)
+        self.assertRedirects(new_response, reverse("equipment:get_equipments"))
+
+        equipment = Equipments.objects.get(equipment_name="new_equipment_2")
+
+        self.assertEqual(equipment.equipment_name, "new_equipment_2")
+        self.assertEqual(equipment.weight_of_equipment_kg, 123)
+        self.assertEqual(equipment.photo_of_equipment, "new_photo_2")
+        self.assertEqual(equipment.now_booked, True)
+
+    # @unittest.skip
+    def test_delete_equipment(self):
+
+        equipment_category = EquipmentsCategories.objects.get(equipment_category_name="Category1")
+        equipment = Equipments.objects.create(
+                                           equipment_name="new_equipment_3",
+                                           weight_of_equipment_kg=100,
+                                           photo_of_equipment="new_photo_3",
+                                           now_booked=True
+                                           )
+        equipment.equipment_category.set([equipment_category])
+
+        looking_for_equipment_first = Equipments.objects.get(equipment_name="new_equipment_3")
+        self.assertIsNotNone(looking_for_equipment_first)
+        
+        response = self.client.post(reverse("equipment:delete_equipment", args=[equipment.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("equipment:get_equipments"))
+
+        deleted_equipment = Equipments.objects.filter(equipment_name="new_equipment_3").first()
+        self.assertIsNone(deleted_equipment)
+
+        with self.assertRaises(Equipments.DoesNotExist):
+            Equipments.objects.get(equipment_name="new_equipment_3")
+
+    def test_change_equipment(self):
+        pass
+
+    def test_detail_equipment(self):
+        pass
+
+    # def detail_equipment(request, equipment_id):
+    # equipment = get_object_or_404(Equipments, pk=equipment_id)
+    # return render(request, 'equipment_accounting/detail.html', context={'equipment': equipment})
 
 
 class CategoruViewTest(TestCase):
