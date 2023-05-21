@@ -1,3 +1,8 @@
+{% extends "layouts/base.html" %}
+{% block title %} add equipment {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
 <form method="POST" action="{% url 'equipment:add_equipment' %}">
     {% csrf_token %}
@@ -44,5 +49,12 @@
 
     
 </form>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}
+
+
 
 

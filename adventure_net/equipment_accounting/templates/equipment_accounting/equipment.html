@@ -1,3 +1,11 @@
+{% extends "layouts/base.html" %}
+{% block title %} equipment {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} 
+
+{% block content %}
+
 <a href="{% url 'equipment:add_equipment' %}" role="button">Add equipment</a>
 <a href="{% url 'equipment:add_category' %}" role="button">Add category</a>
 
@@ -6,7 +14,7 @@
     {% for equipment in equipments%}
     <li class="items" >
 
-      <h1></h1><a href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{equipment.equipment_name}}</a></h1>
+      <h1><a href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{equipment.equipment_name}}</a></h1>
       
       <div>
 
@@ -17,3 +25,7 @@
     {% endfor %}
   </ul>
 
+ {% endblock content %}
+
+<!-- Специфічна сторінка JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}
