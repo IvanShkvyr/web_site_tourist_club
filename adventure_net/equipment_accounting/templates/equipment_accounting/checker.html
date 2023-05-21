@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Checker</title>
-</head>
-<body>
+{% extends "layouts/base.html" %}
+{% block title %} checker {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
   <h1>{{ msg }}</h1>
-</body>
-</html>
+  <ul>
+    <li><a href="../category">Category</a></li>
+    <li><a href="../">equipment</a></li>
+  </ul>
+
+  {% endblock content %}
+
+  <!-- Специфічний JS буде тут  -->
+  {% block javascripts %}{% endblock javascripts %}

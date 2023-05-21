@@ -1,3 +1,9 @@
+{% extends "layouts/base.html" %}
+{% block title %} category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
 <a href="{% url 'equipment:add_category' %}" role="button">Add category</a>
 
 
@@ -13,3 +19,9 @@
     </li>
     {% endfor %}
   </ul>
+
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}

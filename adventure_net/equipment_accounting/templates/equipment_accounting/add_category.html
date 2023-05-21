@@ -1,4 +1,8 @@
+{% extends "layouts/base.html" %}
+{% block title %} Add category {% endblock %}
 
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
 <form method="POST" action="{% url 'equipment:add_category' %}">
     {% csrf_token %}
@@ -9,3 +13,8 @@
     </div>
     <button class="change__button_g" type="submit">Submit</button>
 </form>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}

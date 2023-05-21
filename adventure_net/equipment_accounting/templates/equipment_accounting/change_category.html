@@ -1,3 +1,9 @@
+{% extends "layouts/base.html" %}
+{% block title %} cange category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
 <form method="POST">
     {% csrf_token %}
     <div class="pole" >
@@ -11,3 +17,9 @@
         <button class="change__button_r" type="reset" ><a href="{% url 'equipment:get_category' %}" role="button" > Reset </a></button>
     </div>
 </form>
+
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}
