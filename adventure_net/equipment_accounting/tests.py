@@ -88,48 +88,37 @@ class EquipmentViewTest(TestCase):
         with self.assertRaises(Equipments.DoesNotExist):
             Equipments.objects.get(equipment_name="new_equipment_3")
 
+    # @unittest.skip
     def test_change_equipment(self):
         
+        equipment_category = EquipmentsCategories.objects.get(equipment_category_name="Category1")
+        equipment_old = Equipments.objects.create(
+                                           equipment_name="new_equipment_old",
+                                           weight_of_equipment_kg=200,
+                                           photo_of_equipment="new_photo_old",
+                                           now_booked=True
+                                           )
+        equipment_old.equipment_category.set([equipment_category])
+
         change_data = {
-            "equipment_name": "new_equipment_2",
-            "weight_of_equipment_kg": 123,
-            "photo_of_equipment": "new_photo_2",
+            "equipment_name": "new_equipment_new",
+            "weight_of_equipment_kg": 202,
+            "photo_of_equipment": "new_photo_new",
             "equipment_category": [EquipmentsCategories.objects.get(equipment_category_name="Category1")],
-            "now_booked":True,
+            "now_booked":False,
             }
         
-        response = self.client.post(reverse("equipment:change_equipment", args=[category1.id]), change_data)
+        response = self.client.post(reverse("equipment:change_equipment", args=[equipment_old.id]), change_data)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("equipment:get_equipments"))
 
+        equipment_updated = Equipments.objects.get(id=equipment_old.id)
 
-# def change_equipment(request, equipment_id):
-#     equipment = get_object_or_404(Equipments, pk=equipment_id)
-#     if request.method == "POST":
-#         form = EquipmentsForm(request.POST)
-#         if form.is_valid():
-
-#             Equipments.objects.filter(pk=equipment_id).update(
-#                 equipment_name=request.POST["equipment_name"],
-#                 weight_of_equipment_kg=request.POST["weight_of_equipment_kg"],
-#                 photo_of_equipment=request.POST["photo_of_equipment"],
-#                 now_booked=request.POST["now_booked"],
-#                 )
-#             return redirect(to="equipment:get_equipments")
-#         else:
-#             return render(
-#                 request, "equipment_accounting/change_equipment.html", context={"form": form}
-#             )
-#     return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment})
-
-    # def test_change_category(self):
-    #     category1 = EquipmentsCategories.objects.get(equipment_category_name="Category1")
-    #     change_data = {"equipment_category_name": "ChangeCategory1"}
-    #     response = self.client.post(reverse("equipment:change_category", args=[category1.id]), change_data)
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertRedirects(response, reverse("equipment:get_category"))
-    #     self.assertEqual(EquipmentsCategories.objects.get(id=category1.id).equipment_category_name, "ChangeCategory1")
-
+        self.assertEqual(equipment_updated.equipment_name, "new_equipment_new")
+        self.assertEqual(equipment_updated.weight_of_equipment_kg, 202)
+        self.assertEqual(equipment_updated.photo_of_equipment, "new_photo_new")
+        self.assertEqual(equipment_updated.now_booked, False)
 
     # @unittest.skip
     def test_detail_equipment(self):
