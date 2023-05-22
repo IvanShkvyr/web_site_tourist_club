@@ -6,6 +6,7 @@
 
 <form method="POST">
     {% csrf_token %}
+    <div class="modal">
     <div class="pole" >
         <label class="pole__label">Enter equipment name: </label>
         <input class="pole__input" type="text" name="equipment_name" value={{equipment.equipment_name}}>
@@ -48,9 +49,10 @@
 
     
     <div class="grid">
-        <button class="change__button_g" type="submit">Submit</button>
-        <button class="change__button_r" type="reset" ><a href="{% url 'equipment:get_equipments' %}" role="button" > Reset </a></button>
+        <button class="btn change__button_g" type="submit">Submit</button>
+        <button class="btn change__button_r" type="reset" ><a class="link link-btn" href="{% url 'equipment:get_equipments' %}" role="button" > Cancel </a></button>
     </div>
+</div>
 </form>
 
 
