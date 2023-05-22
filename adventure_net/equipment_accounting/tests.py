@@ -89,15 +89,69 @@ class EquipmentViewTest(TestCase):
             Equipments.objects.get(equipment_name="new_equipment_3")
 
     def test_change_equipment(self):
-        pass
+        
+        change_data = {
+            "equipment_name": "new_equipment_2",
+            "weight_of_equipment_kg": 123,
+            "photo_of_equipment": "new_photo_2",
+            "equipment_category": [EquipmentsCategories.objects.get(equipment_category_name="Category1")],
+            "now_booked":True,
+            }
+        
+        response = self.client.post(reverse("equipment:change_equipment", args=[category1.id]), change_data)
 
+        self.assertEqual(response.status_code, 200)
+
+
+# def change_equipment(request, equipment_id):
+#     equipment = get_object_or_404(Equipments, pk=equipment_id)
+#     if request.method == "POST":
+#         form = EquipmentsForm(request.POST)
+#         if form.is_valid():
+
+#             Equipments.objects.filter(pk=equipment_id).update(
+#                 equipment_name=request.POST["equipment_name"],
+#                 weight_of_equipment_kg=request.POST["weight_of_equipment_kg"],
+#                 photo_of_equipment=request.POST["photo_of_equipment"],
+#                 now_booked=request.POST["now_booked"],
+#                 )
+#             return redirect(to="equipment:get_equipments")
+#         else:
+#             return render(
+#                 request, "equipment_accounting/change_equipment.html", context={"form": form}
+#             )
+#     return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment})
+
+    # def test_change_category(self):
+    #     category1 = EquipmentsCategories.objects.get(equipment_category_name="Category1")
+    #     change_data = {"equipment_category_name": "ChangeCategory1"}
+    #     response = self.client.post(reverse("equipment:change_category", args=[category1.id]), change_data)
+    #     self.assertEqual(response.status_code, 302)
+    #     self.assertRedirects(response, reverse("equipment:get_category"))
+    #     self.assertEqual(EquipmentsCategories.objects.get(id=category1.id).equipment_category_name, "ChangeCategory1")
+
+
+    # @unittest.skip
     def test_detail_equipment(self):
-        pass
+        equipment_category = EquipmentsCategories.objects.get(equipment_category_name="Category1")
+        equipment = Equipments.objects.create(
+                                           equipment_name="new_equipment_5",
+                                           weight_of_equipment_kg=104,
+                                           photo_of_equipment="new_photo_5",
+                                           now_booked=True
+                                           )
+        equipment.equipment_category.set([equipment_category])
 
-    # def detail_equipment(request, equipment_id):
-    # equipment = get_object_or_404(Equipments, pk=equipment_id)
-    # return render(request, 'equipment_accounting/detail.html', context={'equipment': equipment})
+        response = self.client.post(reverse("equipment:detail_equipment", args=[equipment.id]))
+        response_wrong = self.client.post(reverse("equipment:detail_equipment", args=[1000]))
 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_wrong.status_code, 404)
+
+        self.assertContains(response, "new_equipment_5")
+        self.assertContains(response, "104")
+        self.assertContains(response, "new_photo_5")
+        self.assertContains(response, "True")
 
 class CategoruViewTest(TestCase):
 
