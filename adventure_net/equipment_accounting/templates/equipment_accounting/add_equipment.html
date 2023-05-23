@@ -1,61 +1,65 @@
-{% extends "layouts/base.html" %}
-{% block title %} add equipment {% endblock %}
+{% extends "layouts/base.html" %} {% block title %} add equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
 <form method="POST" action="{% url 'equipment:add_equipment' %}">
-    {% csrf_token %}
-    <div class="modal">
-    <div class="pole" >
-        <label class="pole__label">Enter equipment name: </label>
-        <input class="pole__input" type="text" name="equipment_name">
-        <span>{{form.errors.equipment_name}}</span>
+  {% csrf_token %}
+  <div class="modal">
+    <div class="pole">
+      <label class="pole__label">Enter equipment name: </label>
+      <input class="pole__input" type="text" name="equipment_name" />
+      <span>{{form.errors.equipment_name}}</span>
     </div>
-    <div class="pole" >
-        <label class="pole__label">weight of equipment kg: </label>
-        <input class="pole__input" type="text" name="weight_of_equipment_kg">
-        <!-- {{form.weight_of_equipment_kg}} -->
-        <span>{{form.errors.weight_of_equipment_kg}}</span>
-
+    <div class="pole">
+      <label class="pole__label">Weight of equipment kg: </label>
+      <input class="pole__input" type="text" name="weight_of_equipment_kg" />
+      <!-- {{form.weight_of_equipment_kg}} -->
+      <span>{{form.errors.weight_of_equipment_kg}}</span>
     </div>
-    <div class="pole" >
-        <label class="pole__label">Enter equipment photo path: </label>
-        <input class="pole__input" type="text" name="photo_of_equipment">
-        <span>{{form.errors.photo_of_equipment}}</span>
+    <div class="pole">
+      <label class="pole__label">Enter equipment photo path: </label>
+      <input class="pole__input" type="text" name="photo_of_equipment" />
+      <span>{{form.errors.photo_of_equipment}}</span>
     </div>
-
 
     <div class="pole">
-        <label class="pole__label">Now booked:</label>
-        <select name="now_booked">
-            <option value="1">Yes</option>
-            <option value="0">No</option>
-        </select>
-    </div>
-    <div>
-        <label> Choose equipmant category:
-            <select name="categories" required>
-                {% for category in categories %}
-                <option value="{{category.equipment_category_name}}">{{category.equipment_category_name}}</option>
-                {% endfor %}
-            </select>
-        </label>
+      <label class="pole__label">Now booked:</label>
+      <select class="pole__input" name="now_booked">
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+      </select>
     </div>
 
-    <div class="grid">
-        <button class="btn change__button_g" type="submit">Submit</button>
-        <button class="btn" type="reset"><a class="link link-btn" href="{% url 'equipment:get_equipments' %}" role="button" > Cancel </a></button>
+    <div>
+      <label>
+        Choose equipment category:
+        <select class="pole__input" name="categories" required>
+          {% for category in categories %}
+          <option value="{{category.equipment_category_name}}">
+            {{category.equipment_category_name}}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
     </div>
-    
-</div>
+
+    <div class="buttons">
+      <button class="btn" type="submit">Submit</button>
+      <button class="btn" type="reset">
+        <a
+          class="link link-btn"
+          href="{% url 'equipment:get_equipments' %}"
+          role="button"
+        >
+          Cancel
+        </a>
+      </button>
+    </div>
+  </div>
 </form>
 
 {% endblock content %}
 
 <!-- Специфічний JS буде тут  -->
 {% block javascripts %}{% endblock javascripts %}
-
-
-
-

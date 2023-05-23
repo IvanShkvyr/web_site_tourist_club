@@ -1,31 +1,48 @@
-{% extends "layouts/base.html" %}
-{% block title %} equipment {% endblock %}
+{% extends "layouts/base.html" %} {% block title %} equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} 
-
-{% block content %}
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
 <div class="modal">
-<a class="link" href="{% url 'equipment:add_equipment' %}" role="button">Add equipment</a>
-<a class="link" href="{% url 'equipment:add_category' %}" role="button">Add category</a>
+  <div class="category">
+  <a class="link" href="{% url 'equipment:add_equipment' %}" role="button"
+    >Add equipment</a
+  >
+  <a class="link" href="{% url 'equipment:add_category' %}" role="button"
+    >Add category</a
+  >
+</div>
 
-
-<ul class="list" >
+  <ul class="list">
     {% for equipment in equipments%}
-    <li class="items" >
+    <li class="items">
+      <a
+        class="link"
+        href="{% url 'equipment:detail_equipment' equipment.id %}"
+        role="button"
+        class="outline"
+        >{{equipment.equipment_name}}</a
+      >
 
-      <h1><a class="link" href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{equipment.equipment_name}}</a></h1>
-      
-      <div>
-
-      <a class="link" href="{% url 'equipment:change_equipment' equipment.id %}" role="button"><button class="btn button_g" type="button"> Change</button></a>
-      <a class="link" href="{% url 'equipment:delete_equipment' equipment.id %}" role="button" class="contrast"><button class="btn button_r" type="button"> Delete</button></a>
-    </div>
+      <div class="buttons">
+        <a
+          class="link"
+          href="{% url 'equipment:change_equipment' equipment.id %}"
+          role="button"
+          ><button class="btn button_g" type="button">Change</button></a
+        >
+        <a
+          class="link"
+          href="{% url 'equipment:delete_equipment' equipment.id %}"
+          role="button"
+          class="contrast"
+          ><button class="btn button_r" type="button">Delete</button></a
+        >
+      </div>
     </li>
     {% endfor %}
   </ul>
 </div>
- {% endblock content %}
+{% endblock content %}
 
 <!-- Специфічна сторінка JS буде тут  -->
 {% block javascripts %}{% endblock javascripts %}

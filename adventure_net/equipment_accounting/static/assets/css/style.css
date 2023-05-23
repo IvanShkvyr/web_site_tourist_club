@@ -1,29 +1,15 @@
-.button_g {
-    /* background-color: green; */
-}
-.button_r {
-    /* background-color: red; */
-}
-.change__button_r {
-    /* background-color: red; */
-}
-.change__button_g {
-    /* background-color: green; */
-}
-.pole__input {
-    margin-top: 10px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* display: block; */
-}
+
 h1 {
     /* color: blue; */
 }
 .list {
     list-style: none;
 }
-
+.buttons {
+  margin-top: 10px;
+}
 .btn {
-    margin-top: 10px;
+    
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 10px;
     border-radius: 3px;
@@ -69,5 +55,32 @@ h1 {
     text-align: center;
   }
   .pole {
+    margin-top: 10px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
   }
+  .pole__input {
+    margin-top: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  ul {
+    padding: 0;
+  }
+
+    .items {
+      font-size: large;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .errorlist {
+      list-style: none;
+      color: red;
+    }
+
+    .category {
+      display: flex;
+      justify-content: space-evenly;
+    }

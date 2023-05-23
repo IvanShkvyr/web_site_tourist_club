@@ -10,11 +10,11 @@
 <ul class="list" >
     {% for category in categories%}
     <li class="items">
-      <h1>{{category.equipment_category_name}}</h1>
-      <div>
-
-      <a class="link" href="{% url 'equipment:change_category' category.id %}" role="button"><button class="btn button_g" type="button"> Change</button></a>
-      <a class="link" href="{% url 'equipment:delete_category' category.id %}" role="button" class="contrast"><button class="btn button_r" type="button"> Delete</button></a>
+      {{category.equipment_category_name}}
+      
+      <div class="buttons">
+      <a class="link" href="{% url 'equipment:change_category' category.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+      <a class="link" href="{% url 'equipment:delete_category' category.id %}" role="button" class="contrast"><button class="btn" type="button"> Delete</button></a>
     </div>
     </li>
     {% endfor %}
