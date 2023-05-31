@@ -1,39 +1,50 @@
-{% extends "layouts/base.html" %}
-{% block title %} change equipment {% endblock %}
+{% extends "layouts/base.html" %} {% block title %} change equipment {%endblock%}
 
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
 <form method="POST">
-    {% csrf_token %}
-    <div class="pole" >
-        <label class="pole__label">Enter equipment name: </label>
-        <input class="pole__input" type="text" name="equipment_name" value={{equipment.equipment_name}}>
-        <span>{{form.errors.equipment_name}}</span>
+  {% csrf_token %}
+  <div class="modal">
+    <div class="pole">
+      <label class="pole__label">Enter equipment name: </label>
+      <input
+        class="pole__input"
+        type="text"
+        name="equipment_name"
+        value="{{equipment.equipment_name}}"
+      />
+      <span>{{form.errors.equipment_name}}</span>
     </div>
-    <div class="pole" >
-        <label class="pole__label">weight of equipment kg: </label>
-        <input class="pole__input" type="text" name="weight_of_equipment_kg" value={{equipment.weight_of_equipment_kg}}>
-        <span>{{form.errors.weight_of_equipment_kg}}</span>
+    <div class="pole">
+      <label class="pole__label">Weight of equipment kg: </label>
+      <input
+        class="pole__input"
+        type="text"
+        name="weight_of_equipment_kg"
+        value="{{equipment.weight_of_equipment_kg}}"
+      />
+      <span>{{form.errors.weight_of_equipment_kg}}</span>
+    </div>
+    <div class="pole">
+      <label class="pole__label">Enter equipment photo path: </label>
+      <input
+        class="pole__input"
+        type="text"
+        name="photo_of_equipment"
+        value="{{equipment.photo_of_equipment}}"
+      />
+      <span>{{form.errors.photo_of_equipment}}</span>
+    </div>
 
+    <div class="pole form-group">
+      <label class="pole__label">Enter equipment photo path: </label>
+      <select class="pole__input" placeholder="now_booked" name="now_booked">
+        <option value="False">False</option>
+        <option value="True">True</option>
+      </select>
+      <span>{{form.errors.now_booked}}</span>
     </div>
-    <div class="pole" >
-        <label class="pole__label">Enter equipment photo path: </label>
-        <input class="pole__input" type="text" name="photo_of_equipment" value={{equipment.photo_of_equipment}}>
-        <span>{{form.errors.photo_of_equipment}}</span>
-    </div>
-
-    <div class="form-group">
-        <label class="pole__label">Enter equipment photo path: </label>
-        <select
-            placeholder="now_booked"
-            name="now_booked">
-            <option value="False">False</option>
-            <option value="True">True</option>
-        </select>
-        <span>{{form.errors.now_booked}}</span>
-    </div>
-
 
     <!-- <div>
         <label> Choose equipmant category:
@@ -44,15 +55,21 @@
             </select>
         </label>
     </div> -->
-
-
     
-    <div class="grid">
-        <button class="change__button_g" type="submit">Submit</button>
-        <button class="change__button_r" type="reset" ><a href="{% url 'equipment:get_equipments' %}" role="button" > Reset </a></button>
+    <div class="buttons">
+      <button class="btn" type="submit">Submit</button>
+      <button class="btn" type="reset">
+        <a
+          class="link link-btn"
+          href="{% url 'equipment:get_equipments' %}"
+          role="button"
+        >
+          Cancel
+        </a>
+      </button>
     </div>
+  </div>
 </form>
-
 
 {% endblock content %}
 
