@@ -1,0 +1,26 @@
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li >{{message}}</li>
+    {% endfor %}
+</ul>
+
+
+
+<form method="POST" action="{% url 'users:login' %}">
+    {% csrf_token %}
+    <div style="padding: 10px">
+        <label for="{{ form.username.id_for_label }}">Username:</label>
+        {{ form.username }}
+    </div>
+    <div style="padding: 10px">
+        <label> Password:
+            {{form.password}}
+        </label>
+    </div>
+    <div class="grid">
+        <button type="submit">Submit</button>
+        <button type="reset" class="secondary">Reset</button>
+    </div>
+</form>
+
