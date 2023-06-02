@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 
 from .forms import EquipmentsForm, EquipmentsCategoriesForm
 from .models import Equipments, EquipmentsCategories
 
 
+@login_required(login_url='/login/')
 def checker(request):
     return render(
         request,
@@ -12,6 +14,7 @@ def checker(request):
     )
 
 
+@login_required(login_url='/login/')
 def get_category(request):
     categories = EquipmentsCategories.objects.all()
     return render(
@@ -21,6 +24,7 @@ def get_category(request):
                 )
 
 
+@login_required(login_url='/login/')
 def add_category(request):
     if request.method == "POST":
         form = EquipmentsCategoriesForm(request.POST)
@@ -41,6 +45,7 @@ def add_category(request):
                  )
 
 
+@login_required(login_url='/login/')
 def change_category(request, category_id):
     category = get_object_or_404(EquipmentsCategories, pk=category_id)
     if request.method == "POST":
@@ -57,6 +62,7 @@ def change_category(request, category_id):
     return render(request, "equipment_accounting/change_category.html", context={"category": category})
 
 
+@login_required(login_url='/login/')
 def delete_category(request, category_id):
     if request.method == "POST":
         EquipmentsCategories.objects.filter(pk=category_id).delete()
@@ -64,6 +70,7 @@ def delete_category(request, category_id):
     return render(request, "equipment_accounting/delete_category.html")
 
 
+@login_required(login_url='/login/')
 def get_equipments(request):
     equipments = Equipments.objects.all()
     return render(
@@ -73,6 +80,7 @@ def get_equipments(request):
                 )
 
 
+@login_required(login_url='/login/')
 def add_equipment(request):
     categories = EquipmentsCategories.objects.all()
     if request.method == "POST":
@@ -92,11 +100,13 @@ def add_equipment(request):
     return render(request, "equipment_accounting/add_equipment.html", context={'form': EquipmentsForm(), 'categories': categories})
 
 
+@login_required(login_url='/login/')
 def detail_equipment(request, equipment_id):
     equipment = get_object_or_404(Equipments, pk=equipment_id)
     return render(request, 'equipment_accounting/detail.html', context={'equipment': equipment})
 
 
+@login_required(login_url='/login/')
 def change_equipment(request, equipment_id):
     equipment = get_object_or_404(Equipments, pk=equipment_id)
     if request.method == "POST":
@@ -117,6 +127,7 @@ def change_equipment(request, equipment_id):
     return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment})
 
 
+@login_required(login_url='/login/')
 def delete_equipment(request, equipment_id):
     if request.method == "POST":
         Equipments.objects.filter(pk=equipment_id).delete()

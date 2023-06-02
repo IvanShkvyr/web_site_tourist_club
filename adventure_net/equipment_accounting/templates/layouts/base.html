@@ -56,11 +56,11 @@
 <!--                <a class="navbar-brand mr-5" href="news/today/">News</a>-->
 <!--                <a class="navbar-brand mr-5" href="contact_book/">Contact book</a>-->
 
-
-                        <a class="nav-item nav-link" href="/files/">Облік коштів</a>
+                        {% if user.is_authenticated %}
+                        <a class="nav-item nav-link" href="/files/">облік коштів</a>
                         <a class="nav-item nav-link" href="{% url 'equipment:get_equipments' %}">Облік спорядження</a>
-                        <a class="nav-item nav-link" href="/files/">Члени клубу</a>
-
+                        <a class="nav-item nav-link" href="/files/">члени клубу</a>
+                        {% endif %}
 
                         <a class="nav-item nav-link" href="/files/">карта</a>
                         <a class="nav-item nav-link" href="/files/">календар подій</a>
@@ -76,9 +76,9 @@
                         <div class="navbar-nav">
                             {% if user.is_authenticated %}
                                 <a class="nav-item nav-link" href="/files/"><b>{{user.username}}</b></a>
-                                <!-- <a class="nav-item nav-link" href="{% url 'users:logout' %}">Logout</a> -->
+                                <a class="nav-item nav-link" href="{% url 'users:logout' %}">Logout</a>
                             {% else %}
-                                <a class="nav-item nav-link" href="/files/">Login</a>
+                                <a class="nav-item nav-link" href="{% url 'users:login' %}">Login</a>
                                 <a class="nav-item nav-link" href="{% url 'users:signup' %}">Register</a>
                             {% endif %}
                         </div>
