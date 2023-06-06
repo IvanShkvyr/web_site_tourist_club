@@ -1,12 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, decorators
 from django.contrib import messages
+
 from .forms import RegisterForm, LoginForm
+from .models import Profile, UserPositions
 
 
 def main(request):
     return render(request, 'users/main.html', context={"msg": "Good news!!! It is working)"})
-
+ 
 
 def signup_user(request):
     if request.user.is_authenticated:
@@ -40,3 +42,12 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect(to="users:main")
+
+
+@decorators.login_required(login_url='/login/')
+def profile_user(request, user_id):
+    user_profile = get_object_or_404(Profile, user_id=user_id)
+    user_login = user_profile.user.username
+    return render(request, 'users/profile.html', context={'users': user_profile, 'login': user_login})
+
+

@@ -75,7 +75,9 @@
                         <!-- Navbar Right Side -->
                         <div class="navbar-nav">
                             {% if user.is_authenticated %}
-                                <a class="nav-item nav-link" href="/files/"><b>{{user.username}}</b></a>
+                                
+                                <a class="nav-item nav-link" href="{% url 'users:profile' user_id=user.id %}"><b>{{ user.username }}</b></a>
+
                                 <a class="nav-item nav-link" href="{% url 'users:logout' %}">Logout</a>
                             {% else %}
                                 <a class="nav-item nav-link" href="{% url 'users:login' %}">Login</a>
