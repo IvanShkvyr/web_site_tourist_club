@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+{% block title %}Profile {% endblock %}
+
+{% block content %}
+  <h1>User Profile</h1>
+  <p>Username: <b>{{ users.user.username }}</b></p>
+  <p>First Name: <b>{{ users.user.first_name }}</b></p>
+  <p>Last Name: <b>{{ users.user.last_name }}</b></p>
+  <p>Email: <b>{{ users.user.email }}</b></p>
+  <p>User Name: <b>{{ users.user_name_ }}</b></p>
+  <p>User Lastname: <b>{{ users.user_lastname_ }}</b></p>
+  <p>User Birthday: <b>{{ users.user_birthday }}</b></p>
+  <p>User Avatar:</p>
+  <img src="{{ users.user_avatar.url }}" alt="User Avatar" width="200">
+  <p>User Experience: <b>{{ users.user_experience }}</b></p>
+  <p>User Location: <b>{{ users.user_location }}</b></p>
+  <p>User Info: <b>{{ users.user_info }}</b></p>
+  <p>Phone: <b>{{ users.phone }}</b></p>
+  <p>Email: <b>{{ users.email }}</b></p>
+  <p>User Positions:</p>
+  <ul>
+    {% for position in users.user_position.all %}
+      <li>{{ position.positions_category }}</li>
+    {% empty %}
+      <li>No positions</li>
+    {% endfor %}
+  </ul>
+{% endblock content %}
