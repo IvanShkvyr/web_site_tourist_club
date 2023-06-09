@@ -37,4 +37,4 @@ class Profile(models.Model):
 
         if pic.height > 225 or pic.width >225:
             pic.thumbnail((225, 225))
-            pic.save()
+            pic.save(self.user_avatar.path)

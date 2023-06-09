@@ -1,0 +1,25 @@
+{% extends "layouts/base.html" %}
+{% block title %} category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+<div class="modal">
+
+
+<ul class="list" >
+    {% for member in members%}
+    <li class="items">
+      {{ user.username }} - {{member.user_name}} - {{member.user_lastname}}
+      
+      <div class="buttons">
+      <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}

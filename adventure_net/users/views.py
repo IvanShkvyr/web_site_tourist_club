@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, decorators
 from django.contrib import messages
 
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, CategoryForm, MembersForm
 from .models import Profile, UserPositions
 
 
@@ -49,5 +49,93 @@ def profile_user(request, user_id):
     user_profile = get_object_or_404(Profile, user_id=user_id)
     user_login = user_profile.user.username
     return render(request, 'users/profile.html', context={'users': user_profile, 'login': user_login})
+
+
+@decorators.login_required(login_url='/login/')
+def get_users(request):
+    members = Profile.objects.all()
+    return render(
+                    request,
+                    "users/club_members.html",
+                    context={"members": members}
+                )
+
+
+@decorators.login_required(login_url='/login/')
+def change_profile(request, user_id):
+    member = get_object_or_404(Profile, pk=user_id)
+    if request.method == "POST":
+        form = MembersForm(request.POST, request.FILES, instance=member)
+        if form.is_valid():
+            form.save()
+            return redirect('users:club_members')
+    else:
+        form = MembersForm(instance=member)
+    return render(request, 'users/change_profile.html', {'form': form, 'member': member})
+
+@decorators.login_required(login_url='/login/')
+def get_user_position(request):
+    user_positions = UserPositions.objects.all()
+    return render(
+                    request,
+                    "users/user_positions.html",
+                    context={"user_positions": user_positions}
+                )
+
+
+@decorators.login_required(login_url='/login/')
+def add_user_position(request):
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(to='users:get_user_position')
+        else:
+            return render(
+                            request,
+                            "users/add_user_position.html",
+                            context={"form": form}
+                        )
+    return render(
+                    request,
+                    "users/add_user_position.html",
+                    context={"form": CategoryForm()}
+                 )
+
+
+@decorators.login_required(login_url='/login/')
+def change_user_position(request, position_id):
+    user_position = get_object_or_404(UserPositions, pk=position_id)
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid() and user_position.positions_category != request.POST["positions_category"]:
+            UserPositions.objects.filter(pk=position_id).update(
+                positions_category=request.POST["positions_category"],
+                positions_category_info=request.POST["positions_category_info"]
+            )
+            return redirect(to="users:get_user_position")
+        if user_position.positions_category == request.POST["positions_category"]:
+            UserPositions.objects.filter(pk=position_id).update(
+                positions_category_info=request.POST["positions_category_info"]
+            )
+            return redirect(to="users:get_user_position")
+        else:
+            return render(
+                request,
+                "users/change_user_position.html",
+                context={"form": form, "user_position": user_position, "position_id": position_id},
+            )
+    else:
+        form = CategoryForm(instance=user_position)
+    return render(request, "users/change_user_position.html", context={"form": form, "user_position": user_position})
+
+
+@decorators.login_required(login_url='/login/')
+def delete_user_position(request, position_id):
+    if request.method == "POST":
+        UserPositions.objects.filter(pk = position_id).delete()
+        return redirect(to="users:get_user_position")
+    return render(request, "users/delete_user_position.html")
+
 
 

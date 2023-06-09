@@ -2,13 +2,12 @@
 {% block title %}Profile {% endblock %}
 
 {% block content %}
+
+<a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
   <h1>User Profile</h1>
   <p>Username: <b>{{ users.user.username }}</b></p>
-  <p>First Name: <b>{{ users.user.first_name }}</b></p>
-  <p>Last Name: <b>{{ users.user.last_name }}</b></p>
-  <p>Email: <b>{{ users.user.email }}</b></p>
-  <p>User Name: <b>{{ users.user_name_ }}</b></p>
-  <p>User Lastname: <b>{{ users.user_lastname_ }}</b></p>
+  <p>User Name: <b>{{ users.user_name }}</b></p>
+  <p>User Lastname: <b>{{ users.user_lastname }}</b></p>
   <p>User Birthday: <b>{{ users.user_birthday }}</b></p>
   <p>User Avatar:</p>
   <img src="{{ users.user_avatar.url }}" alt="User Avatar" width="200">

@@ -1,6 +1,11 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.forms import CharField, PasswordInput
+from django.forms import CharField, PasswordInput, ModelForm, TextInput, ImageField,\
+DateField, EmailField, ModelMultipleChoiceField, SelectMultiple
+
 from django.contrib.auth.models import User
+from phonenumber_field.modelfields import PhoneNumberField
+
+from . import models
 
 class RegisterForm(UserCreationForm):
     username = CharField(min_length=3, max_length=25, required=True)
@@ -17,3 +22,43 @@ class LoginForm(AuthenticationForm):
     class Meta:
         model = User
         fields = ['username', 'password']
+
+
+class CategoryForm(ModelForm):
+    positions_category = CharField(min_length=3, max_length=20, required=True, widget=TextInput())
+    positions_category_info = CharField(min_length=15, max_length=150, required=True, widget=TextInput())
+
+    class Meta:
+        model = models.UserPositions
+        fields = ['positions_category', 'positions_category_info']
+
+class MembersForm(ModelForm):
+    user_name = CharField(max_length=50, required=True, widget=TextInput())
+    user_lastname = CharField(max_length=50, required=True, widget=TextInput())
+    user_birthday = DateField(required=False)
+    user_avatar = ImageField(required=False)
+    user_position = ModelMultipleChoiceField(
+        queryset=models.UserPositions.objects.all(),
+        widget=SelectMultiple,
+        required=True
+    )
+    user_experience = CharField(max_length=250, required=True, widget=TextInput())
+    user_location = CharField(max_length=50, required=True, widget=TextInput())
+    user_info = CharField(max_length=250, required=True, widget=TextInput())
+    phone = PhoneNumberField()
+    email = EmailField(max_length=100, required=True)
+
+    class Meta:
+        model = models.Profile
+        fields = [
+            'user_name',
+            'user_lastname',
+            'user_birthday',
+            'user_avatar',
+            'user_position',
+            'user_experience',
+            'user_location',
+            'user_info',
+            'phone',
+            'email',
+        ]

@@ -1,0 +1,72 @@
+{% extends "layouts/base.html" %}
+{% block title %}Change Profile{% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <a class="link" href="{% url 'users:add_user_position' %}" role="button"><button class="btn" type="button"> add_user_position</button></a>
+    <a class="link" href="{% url 'users:get_user_position' %}" role="button"><button class="btn" type="button"> get_user_position</button></a>
+    <div class="modal">
+      <div class="pole">
+        <label class="pole__label">User Name: {{ form.user_name }}</label>
+        <span>{{ form.errors.user_name }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Lastname: {{ form.user_lastname }}</label>
+        <span>{{ form.errors.user_lastname }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Birthday: {{ form.user_birthday }}</label>
+        <span>{{ form.errors.user_birthday }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Avatar: {{ form.user_avatar }}</label>
+        <span>{{ form.errors.user_avatar }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Position: {{ form.user_position }}</label>
+        <span>{{ form.errors.user_position }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Experience: {{ form.user_experience }}</label>
+        <span>{{ form.errors.user_experience }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Location: {{ form.user_location }}</label>
+        <span>{{ form.errors.user_location }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">User Info: {{ form.user_info }}</label>
+        <span>{{ form.errors.user_info }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">Phone: {{ form.phone }}</label>
+        <span>{{ form.errors.phone }}</span>
+      </div>
+
+      <div class="pole">
+        <label class="pole__label">Email: {{ form.email }}</label>
+        <span>{{ form.errors.email }}</span>
+      </div>
+
+      <div class="buttons">
+        <button class="btn" type="submit">Submit</button>
+        <a class="link link-btn" href="{% url 'users:club_members' %}" role="button">Cancel</a>
+        
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}
