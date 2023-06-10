@@ -1,5 +1,12 @@
+{% extends "layouts/base.html" %}
+{% block title %} Add category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
 <form method="POST" action="{% url 'users:signup' %}">
     {% csrf_token %}
+    <div class="modal">
     <div style="padding: 10px">
         <label for="{{ form.username.id_for_label }}">Username:</label>
         {{ form.username }}
@@ -19,8 +26,13 @@
         <span>{{form.errors.password2}}</span>
     </div>
     <div class="grid">
-        <button type="submit">Submit</button>
-        <button type="reset" class="secondary">Reset</button>
+        <button class="btn" type="submit">Submit</button>
+        <button class="btn" type="reset" class="secondary">Reset</button>
     </div>
+</div>
 </form>
 
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}
