@@ -1,6 +1,5 @@
 
 h1 {
-    /* color: blue; */
 }
 .list {
     list-style: none;
@@ -13,9 +12,7 @@ h1 {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 10px;
     border-radius: 3px;
-    /* background-color: rgb(0,0,0,0); */
     border: none;
-    /* float: right; */
     color: black;
     font-weight: bold;
   }
@@ -26,7 +23,6 @@ h1 {
   body {
     background-color: #e7ecf2;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* background-color: black; */
   }
 
   .link {
@@ -51,16 +47,15 @@ h1 {
   }
 
   .cange-category__buttons-block {
-    /* padding-top: 20px; */
     text-align: center;
   }
   .pole {
     margin-top: 10px;
-    text-align: center;
+    text-align: left;
     display: flex;
     flex-direction: column;
   }
-  .pole__input {
+  .pole__input, input[type="text"] {
     margin-top: 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
@@ -86,6 +81,10 @@ h1 {
     }
 
     .container {
+      padding: 10px 0;
+      
+    }
+    .navbar {
       display: flex;
-        justify-content: space-evenly;
+      justify-content: space-evenly;
     }

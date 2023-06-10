@@ -7,25 +7,23 @@
 <form method="POST" action="{% url 'users:signup' %}">
     {% csrf_token %}
     <div class="modal">
-    <div style="padding: 10px">
+    <div class="pole">
         <label for="{{ form.username.id_for_label }}">Username:</label>
         {{ form.username }}
         
         <span>{{form.errors.username}}</span>
     </div>
-    <div style="padding: 10px">
-        <label> Password:
-            {{form.password1}}
-        </label>
+    <div class="pole">
+        <label> Password:</label>
+        {{form.password1}}
         <span>{{form.errors.password1}}</span>
     </div>
-    <div style="padding: 10px">
-        <label> Password confirm:
-            {{form.password2}}
-        </label>
+    <div class="pole">
+        <label> Password confirm:</label>
+        {{form.password2}}
         <span>{{form.errors.password2}}</span>
     </div>
-    <div class="grid">
+    <div class="buttons">
         <button class="btn" type="submit">Submit</button>
         <button class="btn" type="reset" class="secondary">Reset</button>
     </div>

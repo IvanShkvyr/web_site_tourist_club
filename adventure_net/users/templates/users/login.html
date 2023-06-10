@@ -17,23 +17,21 @@
 <form method="POST" action="{% url 'users:login' %}">
   {% csrf_token %}
   <div class="modal">
-    <div>
-    <label lass="pole__label" for="{{ form.username.id_for_label }}"
-      >Username:</label
+    <div class="pole">
+    <label class="pole__label" for="{{ form.username.id_for_label }}">User name:</label
     >
     {{ form.username }}
   </div>
-  <div style="padding: 10px">
-    <label lass="pole__label"> Password: {{form.password}} </label>
+  <div class="pole">
+    <label class="pole__label"> Password:</label>
+    {{form.password}} 
   </div>
-  <div class="grid">
+  <div class="buttons">
     <button class="btn" type="submit">Submit</button>
     <button class="btn" type="reset" class="secondary">Reset</button>
   </div>
 </div>
 </form>
-
-
 
 {% endblock content %}
 

@@ -2,7 +2,7 @@
 {% block title %}Profile {% endblock %}
 
 {% block content %}
-
+<div class="modal">
 <a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
   <h1>User Profile</h1>
   <p>Username: <b>{{ users.user.username }}</b></p>
@@ -17,11 +17,15 @@
   <p>Phone: <b>{{ users.phone }}</b></p>
   <p>Email: <b>{{ users.email }}</b></p>
   <p>User Positions:</p>
-  <ul>
+  <ul class="list">
     {% for position in users.user_position.all %}
-      <li>{{ position.positions_category }}</li>
+      <li class="items">{{ position.positions_category }}</li>
     {% empty %}
-      <li>No positions</li>
+      <li class="items">No positions</li>
     {% endfor %}
   </ul>
+</div>
 {% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}
