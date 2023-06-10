@@ -84,3 +84,8 @@ h1 {
       display: flex;
       justify-content: space-evenly;
     }
+
+    .container {
+      display: flex;
+        justify-content: space-evenly;
+    }
