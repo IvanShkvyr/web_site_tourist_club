@@ -3,32 +3,13 @@
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
-<form method="POST" action="{% url 'equipment:add_equipment' %}">
+<form method="POST" action="{% url 'equipment:add_equipment' %}" enctype="multipart/form-data">
+
   {% csrf_token %}
   <div class="modal">
     <div class="pole">
-      <label class="pole__label">Enter equipment name: </label>
-      <input class="pole__input" type="text" name="equipment_name" />
-      <span>{{form.errors.equipment_name}}</span>
-    </div>
-    <div class="pole">
-      <label class="pole__label">Weight of equipment kg: </label>
-      <input class="pole__input" type="text" name="weight_of_equipment_kg" />
-      <!-- {{form.weight_of_equipment_kg}} -->
-      <span>{{form.errors.weight_of_equipment_kg}}</span>
-    </div>
-    <div class="pole">
-      <label class="pole__label">Enter equipment photo path: </label>
-      <input class="pole__input" type="text" name="photo_of_equipment" />
-      <span>{{form.errors.photo_of_equipment}}</span>
-    </div>
-
-    <div class="pole">
-      <label class="pole__label">Now booked:</label>
-      <select class="pole__input" name="now_booked">
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-      </select>
+      <label class="pole__label">Equipment name: {{ form.equipment_name }}</label>
+      <span>{{ form.errors.equipment_name }}</span>
     </div>
 
     <div>
@@ -44,6 +25,22 @@
       </label>
     </div>
 
+    <div class="pole">
+      <label class="pole__label">Photo of equipment:</label>
+      {{ form.photo_of_equipment }}
+      <span>{{ form.errors.photo_of_equipment }}</span>
+    </div>
+    
+
+    <div class="pole">
+      <label class="pole__label">Weight of equipment kg: {{ form.weight_of_equipment_kg }}</label>
+      <span>{{ form.errors.weight_of_equipment_kg }}</span>
+    </div>
+
+    <div class="pole">
+      <label class="pole__label">Equipment description: {{ form.equipment_description }}</label>
+      <span>{{ form.errors.equipment_description }}</span>
+    </div>
     <div class="buttons">
       <button class="btn" type="submit">Submit</button>
       <button class="btn" type="reset">

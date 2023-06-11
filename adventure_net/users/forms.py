@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.forms import CharField, PasswordInput, ModelForm, TextInput, ImageField,\
-DateField, EmailField, ModelMultipleChoiceField, SelectMultiple
+DateField, EmailField, ModelMultipleChoiceField, SelectMultiple, SelectDateWidget
 
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
@@ -35,7 +35,7 @@ class CategoryForm(ModelForm):
 class MembersForm(ModelForm):
     user_name = CharField(max_length=50, required=True, widget=TextInput())
     user_lastname = CharField(max_length=50, required=True, widget=TextInput())
-    user_birthday = DateField(required=False)
+    user_birthday = DateField(required=False, widget=SelectDateWidget)
     user_avatar = ImageField(required=False)
     user_position = ModelMultipleChoiceField(
         queryset=models.UserPositions.objects.all(),
