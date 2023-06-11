@@ -80,19 +80,20 @@ def get_equipments(request):
                 )
 
 
+
 @login_required(login_url='/login/')
 def add_equipment(request):
     categories = EquipmentsCategories.objects.all()
     if request.method == "POST":
-        form = EquipmentsForm(request.POST)
+        form = EquipmentsForm(request.POST, request.FILES)
         if form.is_valid():
             equipment = form.save(commit=False)
-            equipment.now_booked = form.cleaned_data['now_booked']
             equipment.save()
 
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
-                equipment.equipment_category.add(category)
+                equipment.equipment_category.set([category])
+
 
             return redirect(to="equipment:get_equipments")
         else:
@@ -109,22 +110,25 @@ def detail_equipment(request, equipment_id):
 @login_required(login_url='/login/')
 def change_equipment(request, equipment_id):
     equipment = get_object_or_404(Equipments, pk=equipment_id)
+    categories = EquipmentsCategories.objects.all()
     if request.method == "POST":
-        form = EquipmentsForm(request.POST)
+        form = EquipmentsForm(request.POST, request.FILES, instance=equipment)
         if form.is_valid():
 
-            Equipments.objects.filter(pk=equipment_id).update(
-                equipment_name=request.POST["equipment_name"],
-                weight_of_equipment_kg=request.POST["weight_of_equipment_kg"],
-                photo_of_equipment=request.POST["photo_of_equipment"],
-                now_booked=request.POST["now_booked"],
-                )
+            equipment = form.save(commit=False)
+            equipment.save()
+
+            choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
+            for category in choise_categories:
+                equipment.equipment_category.set([category])
+
+
             return redirect(to="equipment:get_equipments")
         else:
             return render(
-                request, "equipment_accounting/change_equipment.html", context={"form": form}
+                request, "equipment_accounting/change_equipment.html", context={"form": form, 'categories': categories}
             )
-    return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment})
+    return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment, 'categories': categories})
 
 
 @login_required(login_url='/login/')

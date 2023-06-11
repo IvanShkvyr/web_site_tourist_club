@@ -73,6 +73,7 @@ def change_profile(request, user_id):
         form = MembersForm(instance=member)
     return render(request, 'users/change_profile.html', {'form': form, 'member': member})
 
+
 @decorators.login_required(login_url='/login/')
 def get_user_position(request):
     user_positions = UserPositions.objects.all()

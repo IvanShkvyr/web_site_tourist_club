@@ -7,7 +7,7 @@
 <ul class="list" >
     {% for member in members%}
     <li class="items">
-      {{ user.username }} - {{member.user_name}} - {{member.user_lastname}}
+      {{ member.user.username }} - {{member.user_name}} - {{member.user_lastname}}
       
       <div class="buttons">
       <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn" type="button"> Change</button></a>
