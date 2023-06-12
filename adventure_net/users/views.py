@@ -8,6 +8,11 @@ from .models import Profile, UserPositions
 
 def main(request):
     return render(request, 'users/main.html', context={"msg": "Good news!!! It is working)"})
+
+def placeholders(request):
+    return render(request, 'users/placeholders.html', context={"msg": "This webpage is under development.\
+                                                                We apologize for any inconvenience. Please\
+                                                                check back later to access the updated version."})
  
 
 def signup_user(request):

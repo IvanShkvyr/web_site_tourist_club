@@ -15,5 +15,6 @@ urlpatterns = [
     path("add_user_position/", views.add_user_position, name="add_user_position"),
     path("change_user_position/<int:position_id>/", views.change_user_position, name="change_user_position"),
     path("delete_user_position/<int:position_id>/", views.delete_user_position, name="delete_user_position"),
+    path("placeholders/", views.placeholders, name="placeholders"),
 ]
 
