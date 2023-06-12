@@ -140,3 +140,23 @@ def delete_equipment(request, equipment_id):
 
 
 
+
+@login_required(login_url='/login/')
+def book_equipment(request, equipment_id):
+    return render(
+        request,
+        "equipment_accounting/book_equipment.html",
+        context={"msg": "Good news!!! Book equipment is working)"},
+    )
+
+
+@login_required(login_url='/login/')
+def cancel_equipment_reservation(request, equipment_id):
+    return render(
+        request,
+        "equipment_accounting/cancel_equipment_reservation.html",
+        context={"msg": "Good news!!! Сancel equipment reservation is working)"},
+        )
+
+
+

@@ -14,4 +14,6 @@ urlpatterns = [
     path("category/add_category", views.add_category, name="add_category"), # add equipment category
     path("category/change_category/<int:category_id>", views.change_category, name="change_category"), # change equipment category
     path("category/delete_category/<int:category_id>", views.delete_category, name="delete_category"), # delete equipment category
+    path("category/book_equipment/<int:equipment_id>", views.book_equipment, name="book_equipment"),
+    path("category/cancel_equipment_reservation/<int:equipment_id>", views.cancel_equipment_reservation, name="cancel_equipment_reservation"),
 ]
