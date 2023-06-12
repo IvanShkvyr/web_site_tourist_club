@@ -9,22 +9,21 @@
     <img src="{{ equipment.photo_of_equipment.url }}" alt="Photo of equipment" width="200">
     <p>Weight of equipment kg: <b>{{equipment.weight_of_equipment_kg}}</b></p>
     <p>Equipment category:</p>
-    <ul>
+    <ul class="list">
         {% for category in equipment.equipment_category.all %}
-            <li>{{ category.equipment_category_name }}</li>
+            <li class="items">{{ category.equipment_category_name }}</li>
         {% endfor %}
     </ul>
     <p>Current user: <b>{{equipment.current_user}}</b></p>
     <p>Equipment description: <b>{{equipment.equipment_description}}</b></p>
-</div>
+
 
 <a
 class="link"
 href="{% url 'equipment:change_equipment' equipment.id %}"
 role="button"
-><button class="btn button_g" type="button">Change</button></a
->
-    
+><button class="btn" type="button">Change</button></a>
+</div>    
 {% endblock content %}
 
 <!-- Специфічний JS буде тут  -->
