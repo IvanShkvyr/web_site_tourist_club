@@ -15,15 +15,31 @@
         {% endfor %}
     </ul>
     <p>Current user: <b>{{equipment.current_user}}</b></p>
-    <p>Equipment description: <b>{{equipment.equipment_description}}</b></p>
+    <a
+    class="link"
+    href="{% url 'equipment:change_equipment' equipment.id %}"
+    role="button"
+    ><button class="btn button_g" type="button">Change</button></a
+    >
+    <a
+    class="link"
+    href="{% url 'equipment:book_equipment' equipment.id %}"
+    role="button"
+    class="contrast"
+    ><button class="btn button_r" type="button">Book</button></a
+  >
+    <a
+    class="link"
+    href="{% url 'equipment:cancel_equipment_reservation' equipment.id %}"
+    role="button"
+    class="contrast"
+    ><button class="btn button_r" type="button">Сancel_reservation</button></a
+    >
+</div>
 
 
-<a
-class="link"
-href="{% url 'equipment:change_equipment' equipment.id %}"
-role="button"
-><button class="btn" type="button">Change</button></a>
-</div>    
+
+
 {% endblock content %}
 
 <!-- Специфічний JS буде тут  -->

@@ -37,6 +37,20 @@
           class="contrast"
           ><button class="btn button_r" type="button">Delete</button></a
         >
+        <a
+        class="link"
+        href="{% url 'equipment:book_equipment' equipment.id %}"
+        role="button"
+        class="contrast"
+        ><button class="btn button_r" type="button">Book</button></a
+      >
+      <a
+        class="link"
+        href="{% url 'equipment:cancel_equipment_reservation' equipment.id %}"
+        role="button"
+        class="contrast"
+        ><button class="btn button_r" type="button">Сancel_reservation</button></a
+      >
       </div>
     </li>
     {% endfor %}
