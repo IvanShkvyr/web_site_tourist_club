@@ -57,14 +57,14 @@
 <!--                <a class="navbar-brand mr-5" href="contact_book/">Contact book</a>-->
 
                         {% if user.is_authenticated %}
-                        <a class="link" href="/files/">Облік коштів</a>
+                        <a class="link" href="{% url 'users:placeholders' %}">Облік коштів</a>
                         <a class="link" href="{% url 'equipment:get_equipments' %}">Облік спорядження</a>
                         <a class="link" href="{% url 'users:club_members' %}">Члени клубу</a>
                         {% endif %}
 
-                        <a class="link" href="/files/">Карта</a>
-                        <a class="link" href="/files/">Календар подій</a>
-                        <a class="link" href="/files/">Історія походів</a>
+                        <a class="link" href="{% url 'users:placeholders' %}">Карта</a>
+                        <a class="link" href="{% url 'users:placeholders' %}">Календар подій</a>
+                        <a class="link" href="{% url 'users:placeholders' %}">Історія походів</a>
 
                   
                   <span class="navbar-toggler-icon"></span>
