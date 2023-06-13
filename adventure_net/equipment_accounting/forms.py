@@ -1,6 +1,7 @@
 from django.forms import BooleanField, ModelForm, CharField,\
       FloatField, NumberInput, TextInput, ModelChoiceField,\
-      ModelMultipleChoiceField, SelectMultiple, ImageField
+      ModelMultipleChoiceField, SelectMultiple, ImageField,\
+      SelectDateWidget, DateField
 
 from . import models
 
@@ -15,11 +16,6 @@ class EquipmentsCategoriesForm(ModelForm):
 
 class EquipmentsForm(ModelForm):
     equipment_name = CharField(min_length=3, max_length=50, required=True, widget=TextInput())
-    # equipment_category = ModelMultipleChoiceField(
-    #     queryset=models.EquipmentsCategories.objects.all(),
-    #     widget=SelectMultiple,
-    #     required=True
-    # )
     weight_of_equipment_kg = FloatField(min_value=0, required=True, widget=NumberInput())
     photo_of_equipment = ImageField(required=False)
     equipment_description = CharField(min_length=3, max_length=150, widget=TextInput())
@@ -33,9 +29,12 @@ class EquipmentsForm(ModelForm):
             'photo_of_equipment',
             'equipment_description']
         exclude = ["equipment_category"]
-        # widgets = {
-        #     'equipment_category': SelectMultiple(attrs={'class': 'form-control'}),
-        # }
+
         
+class BookingEquipmentsForm(ModelForm):
+    booking_date_from = DateField(required=True, widget=SelectDateWidget)
+    booking_date_to = DateField(required=True, widget=SelectDateWidget)
 
-
+    class Meta:
+        model = models.EquipmentBooking
+        fields = ['booking_date_from', 'booking_date_to']

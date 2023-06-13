@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
-from .forms import EquipmentsForm, EquipmentsCategoriesForm
-from .models import Equipments, EquipmentsCategories
+from .forms import EquipmentsForm, EquipmentsCategoriesForm, BookingEquipmentsForm
+from .models import Equipments, EquipmentsCategories, EquipmentBooking
 
 
 @login_required(login_url='/login/')
@@ -114,15 +115,11 @@ def change_equipment(request, equipment_id):
     if request.method == "POST":
         form = EquipmentsForm(request.POST, request.FILES, instance=equipment)
         if form.is_valid():
-
             equipment = form.save(commit=False)
             equipment.save()
-
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
                 equipment.equipment_category.set([category])
-
-
             return redirect(to="equipment:get_equipments")
         else:
             return render(
@@ -139,24 +136,45 @@ def delete_equipment(request, equipment_id):
     return render(request, "equipment_accounting/delete_equipment.html")
 
 
-
-
 @login_required(login_url='/login/')
 def book_equipment(request, equipment_id):
+    equipment = get_object_or_404(Equipments, pk=equipment_id)
+    if request.method == "POST":
+        form = BookingEquipmentsForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.club_member = request.user
+            booking.reserved_equipment = equipment
+            booking.save()
+            return redirect(to="equipment:get_equipments")
+        else:
+            return render(request, "equipment_accounting/book_equipment.html", context={"form": form})
+    else:
+        form = BookingEquipmentsForm()
     return render(
         request,
         "equipment_accounting/book_equipment.html",
-        context={"msg": "Good news!!! Book equipment is working)"},
+        context={"form": form, "equipment": equipment}
     )
 
 
 @login_required(login_url='/login/')
-def cancel_equipment_reservation(request, equipment_id):
+def get_book_equipment(request, equipment_id):
+    equipment = get_object_or_404(Equipments, pk=equipment_id)
+    book_equipments = EquipmentBooking.objects.filter(club_member=request.user, reserved_equipment=equipment)
     return render(
         request,
-        "equipment_accounting/cancel_equipment_reservation.html",
-        context={"msg": "Good news!!! Сancel equipment reservation is working)"},
-        )
+        "equipment_accounting/get_book_equipment.html",
+        context={"book_equipments": book_equipments}
+    )
 
+
+
+@login_required(login_url='/login/')
+def cancel_equipment_reservation(request, book_equipment):
+    if request.method == "POST":
+        EquipmentBooking.objects.filter(pk=book_equipment).delete()
+        return redirect(to="equipment:get_equipments")
+    return render(request, "equipment_accounting/cancel_equipment_reservation.html")
 
 
