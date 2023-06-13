@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 from PIL import Image
 
@@ -34,7 +37,8 @@ class Equipments(models.Model):
 class EquipmentBooking(models.Model):
     club_member = models.ForeignKey(User, on_delete=models.CASCADE)
     reserved_equipment = models.ForeignKey(Equipments, on_delete=models.CASCADE)
-    booking_date = models.DateField()
+    booking_date_from = models.DateField()
+    booking_date_to = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.club_member

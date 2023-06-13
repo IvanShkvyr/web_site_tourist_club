@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+{% block title %} category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+<div class="modal">
+
+
+
+<ul class="list" >
+    {% for book_equipment in book_equipments %}
+    <li class="items">
+      Заброньовано з {{book_equipment.booking_date_from}} по {{book_equipment.booking_date_to}} 
+      
+      <div class="buttons">
+      <a class="link" href="{% url 'equipment:cancel_equipment_reservation' book_equipment.id %}" role="button" class="contrast"><button class="btn" type="button"> Delete</button></a>
+
+    
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}
