@@ -6,11 +6,11 @@
 <div class="modal">
 <ul class="list" >
     {% for member in members%}
-    <li class="items">
+    <li class="items items-left">
       {{ member.user.username }} - {{member.user_name}} - {{member.user_lastname}}
       
-      <div class="buttons">
-      <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+      <div class="buttons buttons-right">
+      <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
     </div>
     </li>
     {% endfor %}

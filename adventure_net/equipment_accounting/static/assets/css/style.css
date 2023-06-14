@@ -7,8 +7,11 @@ h1 {
 .buttons {
   margin-top: 10px;
 }
+.buttons-right {
+  margin-top: 0px;
+  margin-left: 20px;
+}
 .btn {
-    
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 10px;
     border-radius: 3px;
@@ -16,7 +19,11 @@ h1 {
     color: black;
     font-weight: bold;
   }
-  
+  .btn-right {
+    padding: 0px;
+    font-weight: normal;
+    font-size: x-small;
+  }
   .btn:hover {
     background-color: RoyalBlue;
   }
@@ -42,7 +49,7 @@ h1 {
     box-shadow: 2px 2px 2px 2px rgba(0,0,0,.3);
     margin: 0 auto;
     overflow: hidden;
-    width: 400px;
+    width: 600px;
   }
 
   .cange-category__buttons-block {
@@ -64,9 +71,16 @@ h1 {
   }
 
     .items {
+      /* align-items: center; */
+      /* display: flex; */
       font-size: large;
       font-weight: bold;
       margin-top: 10px;
+    }
+    
+    .items-left{
+      align-items: center;
+      display: flex;
     }
 
     .errorlist {
@@ -86,4 +100,7 @@ h1 {
     .navbar {
       display: flex;
       justify-content: space-evenly;
+    }
+    .img {
+      margin-top: 10px;
     }

@@ -14,7 +14,7 @@
 
   <ul class="list">
     {% for equipment in equipments%}
-    <li class="items">
+    <li class="items items-left">
       <a
         class="link"
         href="{% url 'equipment:detail_equipment' equipment.id %}"
@@ -23,33 +23,33 @@
         >{{equipment.equipment_name}}</a
       >
 
-      <div class="buttons">
+      <div class="buttons buttons-right">
         <a
           class="link"
           href="{% url 'equipment:change_equipment' equipment.id %}"
           role="button"
-          ><button class="btn button_g" type="button">Change</button></a
+          ><button class="btn btn-right" type="button">Change</button></a
         >
         <a
           class="link"
           href="{% url 'equipment:delete_equipment' equipment.id %}"
           role="button"
           class="contrast"
-          ><button class="btn button_r" type="button">Delete</button></a
+          ><button class="btn btn-right" type="button">Delete</button></a
         >
         <a
         class="link"
         href="{% url 'equipment:book_equipment' equipment.id %}"
         role="button"
         class="contrast"
-        ><button class="btn button_r" type="button">Book</button></a
+        ><button class="btn btn-right" type="button">Book</button></a
       >
       <a
         class="link"
         href="{% url 'equipment:get_book_equipment' equipment.id %}"
         role="button"
         class="contrast"
-        ><button class="btn button_r" type="button">Сancel_reservation</button></a
+        ><button class="btn btn-right" type="button">Сancel_reservation</button></a
       >
       </div>
     </li>

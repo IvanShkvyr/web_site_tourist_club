@@ -43,11 +43,11 @@
   </head>
   <body>
     <!-- [ Pre-loader ] start -->
-    <div class="loader-bg">
-      <div class="loader-track">
-        <div class="loader-fill"></div>
-      </div>
-    </div>
+    <!-- <div class="loader-bg"> -->
+      <!-- <div class="loader-track"> -->
+        <!-- <div class="loader-fill"></div> -->
+      <!-- </div> -->
+    <!-- </div> -->
     <!-- [ Pre-loader ] End -->
 
     <header class="site-header">
@@ -55,7 +55,7 @@
             <div class="container navbar">
 <!--                <a class="navbar-brand mr-5" href="news/today/">News</a>-->
 <!--                <a class="navbar-brand mr-5" href="contact_book/">Contact book</a>-->
-
+                        <a class="link" href="/">Головна</a>
                         {% if user.is_authenticated %}
                         <a class="link" href="{% url 'users:placeholders' %}">Облік коштів</a>
                         <a class="link" href="{% url 'equipment:get_equipments' %}">Облік спорядження</a>
@@ -102,9 +102,11 @@
                 {% endfor %}
             {% endif %}
 
-    {% block content %}{% endblock content %} {% include "includes/scripts.html" %}
+    {% block content %}{% endblock content %} 
+    {% include "includes/scripts.html" %}
 
     <!-- Специфічний JS буде тут -->
     {% block javascripts %}{% endblock javascripts %}
+  </main>
   </body>
 </html>

@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="modal">
-<a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+
   <h1>User Profile</h1>
   <p>Username: <b>{{ users.user.username }}</b></p>
   <p>User Name: <b>{{ users.user_name }}</b></p>
@@ -24,6 +24,7 @@
       <li class="items">No positions</li>
     {% endfor %}
   </ul>
+  <a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
 </div>
 {% endblock content %}
 

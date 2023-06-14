@@ -12,8 +12,8 @@
       <span>{{ form.errors.equipment_name }}</span>
     </div>
 
-    <div>
-      <label>
+    <div class="pole">
+      <label class="pole__label">
         Choose equipment category:
         <select class="pole__input" name="categories" required>
           {% for category in categories %}
@@ -24,7 +24,7 @@
         </select>
       </label>
     </div>
-    <img src="{{ equipment.photo_of_equipment.url }}" alt="Photo of equipment" width="200">
+    <img class="img" src="{{ equipment.photo_of_equipment.url }}" alt="Photo of equipment" width="200">
     <div class="pole">
       <label class="pole__label">Photo of equipment:</label>
       <input type="file" name="photo_of_equipment" accept="image/*">
