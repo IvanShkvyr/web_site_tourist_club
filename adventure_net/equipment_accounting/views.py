@@ -1,6 +1,9 @@
+from datetime import datetime, date
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q, F
 
 from .forms import EquipmentsForm, EquipmentsCategoriesForm, BookingEquipmentsForm
 from .models import Equipments, EquipmentsCategories, EquipmentBooking
@@ -141,12 +144,33 @@ def book_equipment(request, equipment_id):
     equipment = get_object_or_404(Equipments, pk=equipment_id)
     if request.method == "POST":
         form = BookingEquipmentsForm(request.POST)
+        print(form)
         if form.is_valid():
-            booking = form.save(commit=False)
-            booking.club_member = request.user
-            booking.reserved_equipment = equipment
-            booking.save()
-            return redirect(to="equipment:get_equipments")
+            booking_date_from = form.cleaned_data.get("booking_date_from")
+            booking_date_to = form.cleaned_data.get("booking_date_to")
+            if booking_date_from and booking_date_to and booking_date_from > booking_date_to:
+                messages.error(request, "Початкова дата має бути меншою за кінцеву дату") ###################################
+            elif booking_date_from and booking_date_from < datetime.now().date():
+                messages.error(request, "Початкова дата має бути більшою за поточну дату") ###################################
+            elif (booking_date_to - booking_date_from).days > 30:
+                messages.error(request, "Термін бронювання не повинен перевищувати 30 днів") ###################################
+            else:
+                conflicting_bookings = EquipmentBooking.objects.filter(
+                    Q(reserved_equipment=equipment) &
+                    (
+                        Q(booking_date_from__lte=booking_date_to, booking_date_to__gte=booking_date_from)
+                        | Q(booking_date_from__gte=booking_date_from, booking_date_from__lte=booking_date_to)
+                    )
+                )
+                if conflicting_bookings.exists():
+                    messages.error(request, "Період бронювання перекривається з іншими бронюваннями")
+                else:
+                    booking = form.save(commit=False)
+                    booking.club_member = request.user
+                    booking.reserved_equipment = equipment
+                    booking.save()
+                    messages.success(request, "Обладнання заброньовано")
+                    return redirect(to="equipment:get_equipments")
         else:
             return render(request, "equipment_accounting/book_equipment.html", context={"form": form})
     else:
