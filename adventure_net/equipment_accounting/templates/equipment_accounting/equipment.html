@@ -1,56 +1,30 @@
-{% extends "layouts/base.html" %} {% block title %} equipment {% endblock %}
+{% extends "layouts/base.html" %}
+{% block title %} equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
 <div class="modal">
   <div class="category">
-  <a class="link" href="{% url 'equipment:add_equipment' %}" role="button"
-    >Add equipment</a
-  >
-  <a class="link" href="{% url 'equipment:add_category' %}" role="button"
-    >Add category</a
-  >
-</div>
+    {% if has_permission %}
+    <a class="link" href="{% url 'equipment:add_equipment' %}" role="button">Add equipment</a>
+    <a class="link" href="{% url 'equipment:get_category' %}" role="button">Get categories</a>
+    <a class="link" href="{% url 'equipment:add_category' %}" role="button">Add category</a>
+    {% endif %}
+  </div>
 
   <ul class="list">
-    {% for equipment in equipments%}
+    {% for equipment in equipments %}
     <li class="items items-left">
-      <a
-        class="link"
-        href="{% url 'equipment:detail_equipment' equipment.id %}"
-        role="button"
-        class="outline"
-        >{{equipment.equipment_name}}</a
-      >
+      <a class="link" href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{ equipment.equipment_name }}</a>
 
       <div class="buttons buttons-right">
-        <a
-          class="link"
-          href="{% url 'equipment:change_equipment' equipment.id %}"
-          role="button"
-          ><button class="btn btn-right" type="button">Change</button></a
-        >
-        <a
-          class="link"
-          href="{% url 'equipment:delete_equipment' equipment.id %}"
-          role="button"
-          class="contrast"
-          ><button class="btn btn-right" type="button">Delete</button></a
-        >
-        <a
-        class="link"
-        href="{% url 'equipment:book_equipment' equipment.id %}"
-        role="button"
-        class="contrast"
-        ><button class="btn btn-right" type="button">Book</button></a
-      >
-      <a
-        class="link"
-        href="{% url 'equipment:get_book_equipment' equipment.id %}"
-        role="button"
-        class="contrast"
-        ><button class="btn btn-right" type="button">Сancel_reservation</button></a
-      >
+        {% if has_permission %}
+        <a class="link" href="{% url 'equipment:change_equipment' equipment.id %}" role="button"><button class="btn btn-right" type="button">Change</button></a>
+        <a class="link" href="{% url 'equipment:delete_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Delete</button></a>
+        {% endif %}
+        <a class="link" href="{% url 'equipment:book_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Book</button></a>
+        <a class="link" href="{% url 'equipment:get_book_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Cancel reservation</button></a>
       </div>
     </li>
     {% endfor %}

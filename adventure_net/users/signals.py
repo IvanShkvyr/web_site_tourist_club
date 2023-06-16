@@ -18,14 +18,6 @@ def save_profile(sender, instance, **kwargs):
 @receiver(post_migrate)
 def create_user_positions(sender, **kwargs):
     if sender.name == 'users':
-        UserPositions.objects.get_or_create(
-            positions_category='Head',
-            positions_category_info='The head of the tour club'
-        )
-
-
-def create_user_positions(sender, **kwargs):
-    if sender.name == 'users':
         positions = [
             {'positions_category': 'Head', 'positions_category_info': 'Club leader overseeing operations and decision-making.'},
             {'positions_category': 'Member', 'positions_category_info': 'Club member participating in club activities and events.'},
