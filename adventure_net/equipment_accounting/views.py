@@ -7,6 +7,7 @@ from django.db.models import Q, F
 
 from .forms import EquipmentsForm, EquipmentsCategoriesForm, BookingEquipmentsForm
 from .models import Equipments, EquipmentsCategories, EquipmentBooking
+from users.models import Profile
 
 
 @login_required(login_url='/login/')
@@ -20,6 +21,10 @@ def checker(request):
 
 @login_required(login_url='/login/')
 def get_category(request):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
+
     categories = EquipmentsCategories.objects.all()
     return render(
                     request,
@@ -30,6 +35,10 @@ def get_category(request):
 
 @login_required(login_url='/login/')
 def add_category(request):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
+
     if request.method == "POST":
         form = EquipmentsCategoriesForm(request.POST)
         if form.is_valid():
@@ -51,6 +60,10 @@ def add_category(request):
 
 @login_required(login_url='/login/')
 def change_category(request, category_id):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
+    
     category = get_object_or_404(EquipmentsCategories, pk=category_id)
     if request.method == "POST":
         form = EquipmentsCategoriesForm(request.POST)
@@ -68,6 +81,9 @@ def change_category(request, category_id):
 
 @login_required(login_url='/login/')
 def delete_category(request, category_id):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
     if request.method == "POST":
         EquipmentsCategories.objects.filter(pk=category_id).delete()
         return redirect(to="equipment:get_category")
@@ -76,29 +92,54 @@ def delete_category(request, category_id):
 
 @login_required(login_url='/login/')
 def get_equipments(request):
+    allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
+
+    profile = request.user.profile
+    has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
+
     equipments = Equipments.objects.all()
     return render(
                     request,
                     "equipment_accounting/equipment.html",
-                    context={"equipments": equipments}
+                    context={"equipments": equipments, "has_permission": has_permission}
                 )
+
+
+
+# @login_required(login_url='/login/')
+# def get_equipments(request):
+#     user_positions = ['Equipment manager', 'Head']
+#     has_permission = request.user.profile.user_position.filter(positions_category__in=user_positions).exists()
+
+#     if has_permission:
+#         equipments = Equipment.objects.all()
+#     else:
+#         equipments = Equipment.objects.filter(is_available=True)
+
+#     return render(
+#         request,
+#         "equipment_accounting/equipment.html",
+#         context={"equipments": equipments, "has_permission": has_permission}
+#     )
+
 
 
 
 @login_required(login_url='/login/')
 def add_equipment(request):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
+    
     categories = EquipmentsCategories.objects.all()
     if request.method == "POST":
         form = EquipmentsForm(request.POST, request.FILES)
         if form.is_valid():
             equipment = form.save(commit=False)
             equipment.save()
-
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
                 equipment.equipment_category.set([category])
-
-
             return redirect(to="equipment:get_equipments")
         else:
             return render(request, "equipment_accounting/add_equipment.html", context={'form': form, 'categories': categories})
@@ -113,6 +154,10 @@ def detail_equipment(request, equipment_id):
 
 @login_required(login_url='/login/')
 def change_equipment(request, equipment_id):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
+    
     equipment = get_object_or_404(Equipments, pk=equipment_id)
     categories = EquipmentsCategories.objects.all()
     if request.method == "POST":
@@ -133,6 +178,10 @@ def change_equipment(request, equipment_id):
 
 @login_required(login_url='/login/')
 def delete_equipment(request, equipment_id):
+    permission = permissions_equipment_checker(request)
+    if not permission:
+        return redirect(to="equipment:get_equipments")
+    
     if request.method == "POST":
         Equipments.objects.filter(pk=equipment_id).delete()
         return redirect(to="equipment:get_equipments")
@@ -202,3 +251,20 @@ def cancel_equipment_reservation(request, book_equipment):
     return render(request, "equipment_accounting/cancel_equipment_reservation.html")
 
 
+def permissions_equipment_checker(request):
+    permission = True
+    try:
+        profile = request.user.profile
+        user_positions = profile.user_position.all()
+    except Profile.DoesNotExist:
+        permission = False
+        return permission
+
+    allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
+
+    if not any(position.positions_category in allowed_positions for position in user_positions):
+        messages.error(request, "Ви не маєте прав доступу до цієї сторінки") ###################################
+        permission = False
+        return permission
+    else:
+        return permission
