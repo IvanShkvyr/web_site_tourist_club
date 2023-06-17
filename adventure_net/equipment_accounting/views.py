@@ -97,32 +97,13 @@ def get_equipments(request):
     profile = request.user.profile
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
+    booking_date = EquipmentBooking.objects.all().order_by("booking_date_from")
     equipments = Equipments.objects.all()
     return render(
                     request,
                     "equipment_accounting/equipment.html",
-                    context={"equipments": equipments, "has_permission": has_permission}
+                    context={"equipments": equipments, "has_permission": has_permission, "booking_date":booking_date}
                 )
-
-
-
-# @login_required(login_url='/login/')
-# def get_equipments(request):
-#     user_positions = ['Equipment manager', 'Head']
-#     has_permission = request.user.profile.user_position.filter(positions_category__in=user_positions).exists()
-
-#     if has_permission:
-#         equipments = Equipment.objects.all()
-#     else:
-#         equipments = Equipment.objects.filter(is_available=True)
-
-#     return render(
-#         request,
-#         "equipment_accounting/equipment.html",
-#         context={"equipments": equipments, "has_permission": has_permission}
-#     )
-
-
 
 
 @login_required(login_url='/login/')
@@ -234,14 +215,12 @@ def book_equipment(request, equipment_id):
 @login_required(login_url='/login/')
 def get_book_equipment(request, equipment_id):
     equipment = get_object_or_404(Equipments, pk=equipment_id)
-    book_equipments = EquipmentBooking.objects.filter(club_member=request.user, reserved_equipment=equipment)
+    book_equipments = EquipmentBooking.objects.filter(reserved_equipment=equipment).order_by('booking_date_from')
     return render(
         request,
         "equipment_accounting/get_book_equipment.html",
-        context={"book_equipments": book_equipments}
+        context={"book_equipments": book_equipments, "equipment": equipment}
     )
-
-
 
 @login_required(login_url='/login/')
 def cancel_equipment_reservation(request, book_equipment):
@@ -249,6 +228,8 @@ def cancel_equipment_reservation(request, book_equipment):
         EquipmentBooking.objects.filter(pk=book_equipment).delete()
         return redirect(to="equipment:get_equipments")
     return render(request, "equipment_accounting/cancel_equipment_reservation.html")
+
+
 
 
 def permissions_equipment_checker(request):
