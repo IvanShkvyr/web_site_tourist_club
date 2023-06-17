@@ -17,14 +17,20 @@
     {% for equipment in equipments %}
     <li class="items items-left">
       <a class="link" href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{ equipment.equipment_name }}</a>
+      
+      {% for book_equ in booking_date %}
+        {% if equipment.id == book_equ.reserved_equipment.id %}
+          {{ book_equ.booking_date_from }} - {{ book_equ.booking_date_to }}
+        {% endif %}
+      {% endfor %}
+
 
       <div class="buttons buttons-right">
         {% if has_permission %}
         <a class="link" href="{% url 'equipment:change_equipment' equipment.id %}" role="button"><button class="btn btn-right" type="button">Change</button></a>
         <a class="link" href="{% url 'equipment:delete_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Delete</button></a>
         {% endif %}
-        <a class="link" href="{% url 'equipment:book_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Book</button></a>
-        <a class="link" href="{% url 'equipment:get_book_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Cancel reservation</button></a>
+        <a class="link" href="{% url 'equipment:get_book_equipment' equipment.id %}" role="button" class="contrast"><button class="btn btn-right" type="button">Reservation</button></a>
       </div>
     </li>
     {% endfor %}
