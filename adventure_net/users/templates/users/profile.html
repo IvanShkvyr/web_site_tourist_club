@@ -24,7 +24,12 @@
       <li class="items">No positions</li>
     {% endfor %}
   </ul>
-  <a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+
+
+  {% if request.user.username == users.user.username or has_permission %}
+    <a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+  {% endif %}
+
 </div>
 {% endblock content %}
 

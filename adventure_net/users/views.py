@@ -16,8 +16,9 @@ def placeholders(request):
  
 
 def signup_user(request):
-    if request.user.is_authenticated:
-        return redirect(to="users:main")
+    permission = permissions_signup_checker(request)
+    if not permission:
+        return redirect(to="users:club_members")
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -51,24 +52,41 @@ def logout_user(request):
 
 @decorators.login_required(login_url='/login/')
 def profile_user(request, user_id):
+    allowed_positions = ["Head"] #### Винести в окремий файл
+    profile = request.user.profile
+    has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
+
     user_profile = get_object_or_404(Profile, user_id=user_id)
     user_login = user_profile.user.username
-    return render(request, 'users/profile.html', context={'users': user_profile, 'login': user_login})
+    return render(request, 'users/profile.html', context={'users': user_profile, 'login': user_login, 'has_permission':has_permission})
 
 
 @decorators.login_required(login_url='/login/')
 def get_users(request):
+    allowed_positions = ["Head"] #### Винести в окремий файл
+    profile = request.user.profile
+    has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
+
     members = Profile.objects.all()
     return render(
                     request,
                     "users/club_members.html",
-                    context={"members": members}
+                    context={"members": members, "has_permission":has_permission}
                 )
 
 
 @decorators.login_required(login_url='/login/')
 def change_profile(request, user_id):
     member = get_object_or_404(Profile, pk=user_id)
+
+    allowed_positions = ["Head"] #### Винести в окремий файл
+    profile = request.user.profile
+    has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
+
+    if member.user != request.user and not has_permission:
+        messages.error(request, 'Ви не маєте прав доступу до цієї сторінки')
+        return redirect(to='users:club_members')
+
     if request.method == "POST":
         form = MembersForm(request.POST, request.FILES, instance=member)
         if form.is_valid():
@@ -76,11 +94,19 @@ def change_profile(request, user_id):
             return redirect('users:club_members')
     else:
         form = MembersForm(instance=member)
-    return render(request, 'users/change_profile.html', {'form': form, 'member': member})
+    return render(
+                request,
+                'users/change_profile.html',
+                context={'form': form, 'member': member, "has_permission":has_permission}
+                )
 
 
 @decorators.login_required(login_url='/login/')
 def get_user_position(request):
+    permission = permissions_signup_checker(request)
+    if not permission:
+        return redirect(to="users:club_members")
+
     user_positions = UserPositions.objects.all()
     return render(
                     request,
@@ -91,6 +117,10 @@ def get_user_position(request):
 
 @decorators.login_required(login_url='/login/')
 def add_user_position(request):
+    permission = permissions_signup_checker(request)
+    if not permission:
+        return redirect(to="users:club_members")
+    
     if request.method == "POST":
         form = CategoryForm(request.POST)
         if form.is_valid():
@@ -111,6 +141,10 @@ def add_user_position(request):
 
 @decorators.login_required(login_url='/login/')
 def change_user_position(request, position_id):
+    permission = permissions_signup_checker(request)
+    if not permission:
+        return redirect(to="users:club_members")
+    
     user_position = get_object_or_404(UserPositions, pk=position_id)
     if request.method == "POST":
         form = CategoryForm(request.POST)
@@ -138,10 +172,30 @@ def change_user_position(request, position_id):
 
 @decorators.login_required(login_url='/login/')
 def delete_user_position(request, position_id):
+    permission = permissions_signup_checker(request)
+    if not permission:
+        return redirect(to="users:club_members")
+    
     if request.method == "POST":
         UserPositions.objects.filter(pk = position_id).delete()
         return redirect(to="users:get_user_position")
     return render(request, "users/delete_user_position.html")
 
 
+def permissions_signup_checker(request):
+    permission = True
+    try:
+        profile = request.user.profile
+        user_positions = profile.user_position.all()
+    except Profile.DoesNotExist:
+        permission = False
+        return permission
 
+    allowed_positions = ["Head"] #### Винести в окремий файл
+
+    if not any(position.positions_category in allowed_positions for position in user_positions):
+        messages.error(request, "Ви не маєте прав доступу до цієї сторінки") ###################################
+        permission = False
+        return permission
+    else:
+        return permission

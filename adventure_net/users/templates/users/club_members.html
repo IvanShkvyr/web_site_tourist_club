@@ -3,19 +3,35 @@
 
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
+
+
 <div class="modal">
+
+  {% if has_permission %}
+  <a class="link" href="{% url 'users:signup' %}">Register new members</a>
+  {% endif %}
+
 <ul class="list" >
     {% for member in members%}
     <li class="items items-left">
-      {{ member.user.username }} - {{member.user_name}} - {{member.user_lastname}}
+      <a class="link" href="{% url 'users:profile' member.id %}" > 
+        {{ member.user.username }} - {{member.user_name}} - {{member.user_lastname}}
+      </a>
       
-      <div class="buttons buttons-right">
-      <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
-    </div>
+      {% if request.user.username == member.user.username or has_permission %}
+        <div class="buttons buttons-right">
+        <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+        </div>
+      {% endif %}
+
     </li>
     {% endfor %}
   </ul>
 </div>
+
+
+
 
 {% endblock content %}
 

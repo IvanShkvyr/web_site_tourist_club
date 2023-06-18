@@ -7,9 +7,12 @@
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal">
-    <a class="link" href="{% url 'users:add_user_position' %}" role="button"><button class="btn" type="button"> add_user_position</button></a>
-    <a class="link" href="{% url 'users:get_user_position' %}" role="button"><button class="btn" type="button"> get_user_position</button></a>
-    
+
+    {% if has_permission %}
+      <a class="link" href="{% url 'users:add_user_position' %}" role="button"><button class="btn" type="button"> add_user_position</button></a>
+      <a class="link" href="{% url 'users:get_user_position' %}" role="button"><button class="btn" type="button"> get_user_position</button></a>
+    {% endif %}
+
       <div class="pole">
         <label class="pole__label">User Name: </label>
         {{ form.user_name }}
@@ -34,11 +37,15 @@
         <span>{{ form.errors.user_avatar }}</span>
       </div>
 
+      {% if has_permission %}
       <div class="pole">
         <label class="pole__label">User Position: </label>
         {{ form.user_position }}
         <span>{{ form.errors.user_position }}</span>
       </div>
+      {% endif %}
+
+
 
       <div class="pole">
         <label class="pole__label">User Experience: </label>
