@@ -79,8 +79,14 @@ h1 {
     }
     
     .items-left{
+      margin-top: 20px;
+      font-size: medium;
       align-items: center;
       display: flex;
+    }
+
+    .items-small {
+      font-size: xx-small;
     }
 
     .errorlist {
@@ -103,4 +109,10 @@ h1 {
     }
     .img {
       margin-top: 10px;
+    }
+    .equipment__dates {
+      width: 150px;
+    }
+    .equipment__name{
+      width: 100px;
     }

@@ -16,15 +16,21 @@
   <ul class="list">
     {% for equipment in equipments %}
     <li class="items items-left">
+      <div class="equipment__name">
       <a class="link" href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{ equipment.equipment_name }}</a>
-      
+      </div>
+      <div class="equipment__dates">
+      <ul class="list">
       {% for book_equ in booking_date %}
         {% if equipment.id == book_equ.reserved_equipment.id %}
-          {{ book_equ.booking_date_from }} - {{ book_equ.booking_date_to }}
+        <li class="items items-small">
+            {{ book_equ.booking_date_from }} - {{ book_equ.booking_date_to }}
+        </li>
+          
         {% endif %}
       {% endfor %}
-
-
+      </ul>
+      </div>
       <div class="buttons buttons-right">
         {% if has_permission %}
         <a class="link" href="{% url 'equipment:change_equipment' equipment.id %}" role="button"><button class="btn btn-right" type="button">Change</button></a>
