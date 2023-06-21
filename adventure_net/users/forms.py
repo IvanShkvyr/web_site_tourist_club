@@ -40,13 +40,12 @@ class MembersForm(ModelForm):
     user_position = ModelMultipleChoiceField(
         queryset=models.UserPositions.objects.all(),
         widget=SelectMultiple,
-        required=True
+        required=False
     )
-    user_experience = CharField(max_length=250, required=True, widget=TextInput())
-    user_location = CharField(max_length=50, required=True, widget=TextInput())
-    user_info = CharField(max_length=250, required=True, widget=TextInput())
+    user_experience = CharField(max_length=250, required=False, widget=TextInput())
+    user_location = CharField(max_length=50, required=False, widget=TextInput())
+    user_info = CharField(max_length=250, required=False, widget=TextInput())
     phone = PhoneNumberField()
-    email = EmailField(max_length=100, required=True)
 
     class Meta:
         model = models.Profile
@@ -62,3 +61,11 @@ class MembersForm(ModelForm):
             'phone',
             'email',
         ]
+
+class UpdateAccountInformationForm(ModelForm):
+    username = CharField(min_length=3, max_length=25, required=True)
+    password = CharField(max_length=25, required=True, widget=PasswordInput())
+
+    class Meta:
+        model = User
+        fields = ['username', 'password']

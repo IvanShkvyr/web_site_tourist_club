@@ -24,6 +24,11 @@
         <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
         </div>
       {% endif %}
+      {% if has_permission %}
+        <div class="buttons buttons-right">
+          <a class="link" href="{% url 'users:delete_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Delete</button></a>
+        </div>
+      {% endif %}
 
     </li>
     {% endfor %}
