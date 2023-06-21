@@ -1,0 +1,43 @@
+{% extends "layouts/base.html" %}
+{% block title %} Add category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} 
+
+{% block content %}
+
+{% if form.errors %}
+  <div class="alert alert-danger">
+    <ul>
+    {% for field in form %}
+      {% for error in field.errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="POST" action="{% url 'users:update_account_information'  member.user.id %}">
+  {% csrf_token %}
+  <div class="modal">
+    <div class="pole">
+    <label class="pole__label" for="{{ form.username.id_for_label }}">User name:</label
+    >
+    {{ form.username }}
+  </div>
+  <div class="pole">
+    <label class="pole__label"> Password:</label>
+    {{form.password}} 
+  </div>
+  <div class="buttons">
+    <button class="btn" type="submit">Submit</button>
+    <button class="btn" type="reset" class="secondary">Reset</button>
+  </div>
+</div>
+</form>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}

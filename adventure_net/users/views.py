@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, decorators
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 
-from .forms import RegisterForm, LoginForm, CategoryForm, MembersForm
+from .forms import RegisterForm, LoginForm, CategoryForm, MembersForm, UpdateAccountInformationForm
 from .models import Profile, UserPositions
 
 
@@ -88,7 +90,9 @@ def change_profile(request, user_id):
         return redirect(to='users:club_members')
 
     if request.method == "POST":
-        form = MembersForm(request.POST, request.FILES, instance=member)
+        form = MembersForm(request.POST or None, request.FILES or None, instance=member)
+
+        # form = MembersForm(request.POST, request.FILES, instance=member)
         if form.is_valid():
             form.save()
             return redirect('users:club_members')
@@ -99,6 +103,23 @@ def change_profile(request, user_id):
                 'users/change_profile.html',
                 context={'form': form, 'member': member, "has_permission":has_permission}
                 )
+
+
+@decorators.login_required(login_url='/login/')
+def delete_profile(request, user_id):
+    permission = permissions_signup_checker(request)
+    if not permission:
+        return redirect(to="users:club_members")
+    
+    if request.method == "POST":
+        member = get_object_or_404(Profile, pk=user_id)
+        user = member.user
+
+        User.objects.filter(pk = user.id).delete()
+
+        return redirect(to="users:club_members")
+    return render(request, "users/delete_user.html")
+
 
 
 @decorators.login_required(login_url='/login/')
@@ -180,6 +201,40 @@ def delete_user_position(request, position_id):
         UserPositions.objects.filter(pk = position_id).delete()
         return redirect(to="users:get_user_position")
     return render(request, "users/delete_user_position.html")
+
+
+@decorators.login_required(login_url='/login/')
+def update_account_information(request, user_id):
+    member = get_object_or_404(Profile, pk=user_id)
+
+    if member.user != request.user:
+        messages.error(request, 'Ви не маєте прав доступу до цієї сторінки')
+        return redirect(to='users:club_members')
+
+    user = member.user  # Отримуємо користувача з профілю
+
+    if request.method == "POST":
+        form = UpdateAccountInformationForm(request.POST, instance=user)
+        if form.is_valid():
+            user.username = form.cleaned_data['username']  # Оновлюємо поле логіну
+            user.set_password(form.cleaned_data['password'])  # Оновлюємо пароль
+            user.save()
+            messages.success(request, 'Логін та пароль оновлено успішно.')
+            return redirect('users:club_members')
+        else:
+            messages.error(request, 'Будь ласка, виправте помилки у формі.')
+    else:
+        form = UpdateAccountInformationForm(instance=user)
+
+    return render(
+        request,
+        'users/update_account_information.html',
+        context={'form': form, 'member': member}
+    )
+
+
+
+
 
 
 def permissions_signup_checker(request):

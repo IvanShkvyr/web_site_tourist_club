@@ -31,20 +31,9 @@ class Equipments(models.Model):
         
         if pic.height > 225 or pic.width > 225:
             pic.thumbnail((225, 225))
-            # Змінюємо розміри зображення до 225x225 пікселів
-            # зображення не обрізається . залишається його пропорція
-            # pic.save(self.photo_of_equipment.path)
 
-
-        # Змінюємо розміри зображення до 225x225 пікселів,зображення обрізається по центру
-        # resized_image = ImageOps.fit(pic, (225, 225), Image.ANTIALIAS)
-
-        # Створюємо нове зображення квадратної форми з білим фоном
         square_image = Image.new('RGB', (225, 225), (255, 255, 255))
-        # square_image.paste(resized_image, ((225 - resized_image.size[0]) // 2, (225 - resized_image.size[1]) // 2))
         square_image.paste(pic, ((225 - pic.size[0]) // 2, (225 - pic.size[1]) // 2))
-
-        # Зберігаємо зображення
         square_image.save(self.photo_of_equipment.path)
 
 

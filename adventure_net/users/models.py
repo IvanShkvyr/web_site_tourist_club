@@ -34,7 +34,10 @@ class Profile(models.Model):
         super().save(*args, **kwargs)
 
         pic = Image.open(self.user_avatar.path)
-
-        if pic.height > 225 or pic.width >225:
+        
+        if pic.height > 225 or pic.width > 225:
             pic.thumbnail((225, 225))
-            pic.save(self.user_avatar.path)
+
+        square_image = Image.new('RGB', (225, 225), (255, 255, 255))
+        square_image.paste(pic, ((225 - pic.size[0]) // 2, (225 - pic.size[1]) // 2))
+        square_image.save(self.user_avatar.path)

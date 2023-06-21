@@ -26,8 +26,9 @@
   </ul>
 
 
-  {% if request.user.username == users.user.username or has_permission %}
+  {% if request.user.username == users.user.username%}
     <a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
+    <a class="link" href="{% url 'users:update_account_information' users.id %}" role="button"><button class="btn" type="button"> Change Password and Login</button></a>
   {% endif %}
 
 </div>
