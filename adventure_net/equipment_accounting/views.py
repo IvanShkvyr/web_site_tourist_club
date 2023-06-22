@@ -1,6 +1,6 @@
 from datetime import datetime, date
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, F
@@ -92,6 +92,9 @@ def delete_category(request, category_id):
 
 @login_required(login_url='/login/')
 def get_equipments(request):
+
+    EquipmentBooking.objects.filter(booking_date_to__lt=date.today()).delete()
+
     allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
 
     profile = request.user.profile

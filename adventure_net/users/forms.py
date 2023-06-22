@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.forms import CharField, PasswordInput, ModelForm, TextInput, ImageField,\
 DateField, EmailField, ModelMultipleChoiceField, SelectMultiple, SelectDateWidget
@@ -35,7 +36,9 @@ class CategoryForm(ModelForm):
 class MembersForm(ModelForm):
     user_name = CharField(max_length=50, required=True, widget=TextInput())
     user_lastname = CharField(max_length=50, required=True, widget=TextInput())
-    user_birthday = DateField(required=False, widget=SelectDateWidget)
+    user_birthday = DateField(required=False, widget=SelectDateWidget(
+            years=range(1950, datetime.today().year)
+        ))
     user_avatar = ImageField(required=False)
     user_position = ModelMultipleChoiceField(
         queryset=models.UserPositions.objects.all(),
@@ -61,6 +64,7 @@ class MembersForm(ModelForm):
             'phone',
             'email',
         ]
+
 
 class UpdateAccountInformationForm(ModelForm):
     username = CharField(min_length=3, max_length=25, required=True)
