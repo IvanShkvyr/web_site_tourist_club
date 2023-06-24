@@ -26,8 +26,10 @@ def signup_user(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Вітаємо! Користувача успішно створено.")
             return redirect(to="users:main")
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(request, 'users/singup.html', context={'form': form})
     return render(request, 'users/singup.html', context={'form': RegisterForm()})
 
@@ -39,9 +41,10 @@ def login_user(request):
     if request.method == "POST":
         user = authenticate(username=request.POST['username'], password=request.POST['password'])
         if user is None:
-            messages.error(request, 'Username or password did\'t match')
+            messages.error(request, 'Введено неправильне ім\'я користувача або пароль!')
             return redirect(to='users:login')
         login(request, user)
+        messages.success(request, "Вітаємо в турклубі!")
         return redirect(to="users:main")
     return render(request, 'users/login.html', context={'form': LoginForm()})
 
@@ -95,8 +98,10 @@ def change_profile(request, user_id):
         # form = MembersForm(request.POST, request.FILES, instance=member)
         if form.is_valid():
             form.save()
+            messages.success(request, "Дані корисувача успішно змінені")
             return redirect('users:club_members')
     else:
+        messages.error(request, "Будь ласка введіть коректні дані. ")
         form = MembersForm(instance=member)
     return render(
                 request,
@@ -116,7 +121,7 @@ def delete_profile(request, user_id):
         user = member.user
 
         User.objects.filter(pk = user.id).delete()
-
+        messages.success(request, "Дані корисувача успішно видалені")
         return redirect(to="users:club_members")
     return render(request, "users/delete_user.html")
 
@@ -146,8 +151,10 @@ def add_user_position(request):
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Вітаємо! Позицію члена клуба додано")
             return redirect(to='users:get_user_position')
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(
                             request,
                             "users/add_user_position.html",
@@ -179,8 +186,10 @@ def change_user_position(request, position_id):
             UserPositions.objects.filter(pk=position_id).update(
                 positions_category_info=request.POST["positions_category_info"]
             )
+            messages.success(request, "Вітаємо! Позицію члена клуба змінено")
             return redirect(to="users:get_user_position")
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(
                 request,
                 "users/change_user_position.html",
@@ -199,6 +208,7 @@ def delete_user_position(request, position_id):
     
     if request.method == "POST":
         UserPositions.objects.filter(pk = position_id).delete()
+        messages.success(request, "Вітаємо! Позицію члена клуба видалено")
         return redirect(to="users:get_user_position")
     return render(request, "users/delete_user_position.html")
 
@@ -219,7 +229,7 @@ def update_account_information(request, user_id):
             user.username = form.cleaned_data['username']  # Оновлюємо поле логіну
             user.set_password(form.cleaned_data['password'])  # Оновлюємо пароль
             user.save()
-            messages.success(request, 'Логін та пароль оновлено успішно.')
+            messages.success(request, 'Логін та пароль успішно оновлені.')
             return redirect('users:club_members')
         else:
             messages.error(request, 'Будь ласка, виправте помилки у формі.')
