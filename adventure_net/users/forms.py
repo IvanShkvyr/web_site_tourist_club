@@ -29,6 +29,10 @@ class CategoryForm(ModelForm):
     positions_category = CharField(min_length=3, max_length=20, required=True, widget=TextInput())
     positions_category_info = CharField(min_length=15, max_length=150, required=True, widget=TextInput())
 
+    def clean_positions_category(self):
+        positions_category = self.cleaned_data['positions_category']
+        return positions_category.title()
+
     class Meta:
         model = models.UserPositions
         fields = ['positions_category', 'positions_category_info']

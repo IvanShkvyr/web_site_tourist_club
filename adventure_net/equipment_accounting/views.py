@@ -44,8 +44,10 @@ def add_category(request):
         if form.is_valid():
             data_equipment_categorie = form.save(commit=False)
             data_equipment_categorie.save()
+            messages.success(request, "Категорію додано до переліку категорій обладнання")
             return redirect(to='equipment:get_category')
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(
                             request,
                             "equipment_accounting/add_category.html",
@@ -71,8 +73,10 @@ def change_category(request, category_id):
             EquipmentsCategories.objects.filter(pk=category_id).update(
                 equipment_category_name=request.POST["equipment_category_name"],
                 )
+            messages.success(request, "Вітаю! Категорію успішно змінено.")
             return redirect(to="equipment:get_category")
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(
                 request, "equipment_accounting/change_category.html", context={"form": form}
             )
@@ -86,17 +90,16 @@ def delete_category(request, category_id):
         return redirect(to="equipment:get_equipments")
     if request.method == "POST":
         EquipmentsCategories.objects.filter(pk=category_id).delete()
+        messages.success(request, "Вітаю! Категорію успішно видалено.")
         return redirect(to="equipment:get_category")
     return render(request, "equipment_accounting/delete_category.html")
 
 
 @login_required(login_url='/login/')
 def get_equipments(request):
-
-    EquipmentBooking.objects.filter(booking_date_to__lt=date.today()).delete()
+    check_equipment_booking(request)
 
     allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
-
     profile = request.user.profile
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
@@ -124,8 +127,10 @@ def add_equipment(request):
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
                 equipment.equipment_category.set([category])
+            messages.success(request, "Вітаю! Створено нова позиція обладнання.")
             return redirect(to="equipment:get_equipments")
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(request, "equipment_accounting/add_equipment.html", context={'form': form, 'categories': categories})
     return render(request, "equipment_accounting/add_equipment.html", context={'form': EquipmentsForm(), 'categories': categories})
 
@@ -152,13 +157,14 @@ def change_equipment(request, equipment_id):
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
                 equipment.equipment_category.set([category])
+            messages.success(request, "Вітаю! Дані по обладнанню успішно змінені.")
             return redirect(to="equipment:get_equipments")
         else:
+            messages.error(request, "Будь ласка введіть коректні дані. ")
             return render(
                 request, "equipment_accounting/change_equipment.html", context={"form": form, 'categories': categories}
             )
     return render(request, "equipment_accounting/change_equipment.html", context={"equipment": equipment, 'categories': categories})
-
 
 @login_required(login_url='/login/')
 def delete_equipment(request, equipment_id):
@@ -168,6 +174,7 @@ def delete_equipment(request, equipment_id):
     
     if request.method == "POST":
         Equipments.objects.filter(pk=equipment_id).delete()
+        messages.success(request, "Вітаю! Дані про обладнання успішно видалено.")
         return redirect(to="equipment:get_equipments")
     return render(request, "equipment_accounting/delete_equipment.html")
 
@@ -202,7 +209,7 @@ def book_equipment(request, equipment_id):
                     booking.club_member = request.user
                     booking.reserved_equipment = equipment
                     booking.save()
-                    messages.success(request, "Обладнання заброньовано")
+                    messages.success(request, "Вітаю! Обладнання заброньовано")
                     return redirect(to="equipment:get_equipments")
         else:
             return render(request, "equipment_accounting/book_equipment.html", context={"form": form})
@@ -229,6 +236,7 @@ def get_book_equipment(request, equipment_id):
 def cancel_equipment_reservation(request, book_equipment):
     if request.method == "POST":
         EquipmentBooking.objects.filter(pk=book_equipment).delete()
+        messages.success(request, "Період бронювання успішно видалено!")
         return redirect(to="equipment:get_equipments")
     return render(request, "equipment_accounting/cancel_equipment_reservation.html")
 
@@ -252,3 +260,9 @@ def permissions_equipment_checker(request):
         return permission
     else:
         return permission
+
+
+def check_equipment_booking(request):
+    EquipmentBooking.objects.filter(booking_date_to__lt=date.today()).delete()
+
+
