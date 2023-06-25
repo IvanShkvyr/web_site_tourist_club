@@ -1,44 +1,58 @@
-{% extends "layouts/base.html" %}
+{% extends "layouts/base.html" %} 
 {% block title %} delete equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
 <div class="modal">
-    <h1>{{equipment.equipment_name}}</h1>
-    <img src="{{ equipment.photo_of_equipment.url }}" alt="Photo of equipment" width="200">
-    <p>Weight of equipment kg: <b>{{equipment.weight_of_equipment_kg}}</b></p>
-    <p>Equipment category:</p>
-    <ul class="list">
+  <h2>{{equipment.equipment_name}}</h2>
+  <div class="card">
+    
+    <div class="card__image-frame">
+      <img
+        src="{{ equipment.photo_of_equipment.url }}"
+        alt="Photo of equipment"
+        width="200"
+      />
+    </div>
+     <div class="card__content">
+      
+
+      <p>Weight: {{equipment.weight_of_equipment_kg}}kg</p>
+      <p>Category:</p>
+      <ul class="list">
         {% for category in equipment.equipment_category.all %}
-            <li class="items">{{ category.equipment_category_name }}</li>
+        <li >{{ category.equipment_category_name }}</li>
         {% endfor %}
-    </ul>
-    <p>Current user: <b>{{equipment.current_user}}</b></p>
-    <a
-    class="link"
-    href="{% url 'equipment:change_equipment' equipment.id %}"
-    role="button"
-    ><button class="btn button_g" type="button">Change</button></a
-    >
-    <a
-    class="link"
-    href="{% url 'equipment:book_equipment' equipment.id %}"
-    role="button"
-    class="contrast"
-    ><button class="btn button_r" type="button">Book</button></a
-  >
-    <a
-    class="link"
-    href="{% url 'equipment:cancel_equipment_reservation' equipment.id %}"
-    role="button"
-    class="contrast"
-    ><button class="btn button_r" type="button">Сancel_reservation</button></a
-    >
+      </ul>
+      <p>Current user: {{equipment.current_user}}</p>
+     </div>
+    </div>
+
+    <div class="buttons">
+        <a
+          class="link"
+          href="{% url 'equipment:change_equipment' equipment.id %}"
+          role="button"
+          ><button class="btn" type="button">Change</button></a
+        >
+        <a
+          class="link"
+          href="{% url 'equipment:book_equipment' equipment.id %}"
+          role="button"
+          class="contrast"
+          ><button class="btn" type="button">Book</button></a
+        >
+        <a
+          class="link"
+          href="{% url 'equipment:cancel_equipment_reservation' equipment.id %}"
+          role="button"
+          class="contrast"
+          ><button class="btn" type="button">Сancel_reservation</button></a
+        >
+    </div>
+  
 </div>
-
-
-
 
 {% endblock content %}
 

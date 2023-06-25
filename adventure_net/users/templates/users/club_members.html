@@ -1,15 +1,14 @@
 {% extends "layouts/base.html" %}
-{% block title %} category {% endblock %}
+{% block title %} Club members {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
-
-
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
 
 <div class="modal">
-
+  <h2>Club members</h2>
   {% if has_permission %}
-  <a class="link" href="{% url 'users:signup' %}">Register new members</a>
+  <a class="link" href="{% url 'users:signup' %}"><button class="btn btn-right" type="button"> Add members</button></a>
   {% endif %}
 
 <ul class="list" >
@@ -18,18 +17,20 @@
       <a class="link" href="{% url 'users:profile' member.id %}" > 
         {{ member.user.username }} - {{member.user_name}} - {{member.user_lastname}}
       </a>
-      
+      <div class="buttons-block">  
       {% if request.user.username == member.user.username or has_permission %}
-        <div class="buttons buttons-right">
+      
+      <div class="buttons-right">
         <a class="link" href="{% url 'users:change_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
         </div>
       {% endif %}
       {% if has_permission %}
-        <div class="buttons buttons-right">
+        <div class="buttons-right">
           <a class="link" href="{% url 'users:delete_profile' member.id %}" role="button"><button class="btn btn-right" type="button"> Delete</button></a>
         </div>
+      
       {% endif %}
-
+</div>
     </li>
     {% endfor %}
   </ul>

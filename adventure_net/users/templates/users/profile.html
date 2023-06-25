@@ -1,36 +1,51 @@
-{% extends "layouts/base.html" %}
-{% block title %}Profile {% endblock %}
-
+{% extends "layouts/base.html" %} 
+{% block title %} User Profile {% endblock %}
 {% block content %}
 <div class="modal">
-
-  <h1>User Profile</h1>
-  <p>Username: <b>{{ users.user.username }}</b></p>
-  <p>User Name: <b>{{ users.user_name }}</b></p>
-  <p>User Lastname: <b>{{ users.user_lastname }}</b></p>
-  <p>User Birthday: <b>{{ users.user_birthday }}</b></p>
-  <p>User Avatar:</p>
-  <img src="{{ users.user_avatar.url }}" alt="User Avatar" width="200">
-  <p>User Experience: <b>{{ users.user_experience }}</b></p>
-  <p>User Location: <b>{{ users.user_location }}</b></p>
-  <p>User Info: <b>{{ users.user_info }}</b></p>
-  <p>Phone: <b>{{ users.phone }}</b></p>
-  <p>Email: <b>{{ users.email }}</b></p>
-  <p>User Positions:</p>
-  <ul class="list">
-    {% for position in users.user_position.all %}
-      <li class="items">{{ position.positions_category }}</li>
-    {% empty %}
-      <li class="items">No positions</li>
-    {% endfor %}
-  </ul>
-
-
-  {% if request.user.username == users.user.username%}
-    <a class="link" href="{% url 'users:change_profile' users.id %}" role="button"><button class="btn" type="button"> Change</button></a>
-    <a class="link" href="{% url 'users:update_account_information' users.id %}" role="button"><button class="btn" type="button"> Change Password and Login</button></a>
-  {% endif %}
-
+  <h2>{{ users.user.username }}</h2>
+  <div class="card">
+    <div class="card__image-frame">
+      <img src="{{ users.user_avatar.url }}" alt="User Avatar" width="200" />
+    </div>
+    <div class="card__content">
+    
+    <!-- <p>Username: {{ users.user.username }}</p> -->
+    <p>Name: {{ users.user_name }}</p>
+    <p>Lastname: {{ users.user_lastname }}</p>
+    <p>Birthday: {{ users.user_birthday }}</p>
+    <!-- <p>Avatar:</p> -->
+    
+    <p>Experience: {{ users.user_experience }}</p>
+    <p>Location: {{ users.user_location }}</p>
+    <p>Info: {{ users.user_info }}</p>
+    <p>Phone: {{ users.phone }}</p>
+    <p>Email: {{ users.email }}</p>
+    <p>Positions:</p>
+    <ul class="list">
+      {% for position in users.user_position.all %}
+      <li >{{ position.positions_category }}</li>
+      {% empty %}
+      <li >No positions</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+    {% if request.user.username == users.user.username%}
+    <div class="buttons">
+    <a
+      class="link"
+      href="{% url 'users:change_profile' users.id %}"
+      role="button"
+      ><button class="btn" type="button">Change</button></a
+    >
+    <a
+      class="link"
+      href="{% url 'users:update_account_information' users.id %}"
+      role="button"
+      ><button class="btn" type="button">Change Password and Login</button></a>
+  </div>
+    {% endif %}
+  
 </div>
 {% endblock content %}
 

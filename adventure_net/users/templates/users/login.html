@@ -1,10 +1,14 @@
 {% extends "layouts/base.html" %}
-{% block title %} Add category {% endblock %}
+{% block title %} Login {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} 
 
 {% block content %}
+
+<form method="POST" action="{% url 'users:login' %}">
+  {% csrf_token %}
+  <div class="modal">
 
 {% if messages %}
 <ul>
@@ -14,9 +18,7 @@
 </ul>
 {% endif %}
 
-<form method="POST" action="{% url 'users:login' %}">
-  {% csrf_token %}
-  <div class="modal">
+
     <div class="pole">
     <label class="pole__label" for="{{ form.username.id_for_label }}">User name:</label
     >

@@ -1,22 +1,33 @@
-{% extends "layouts/base.html" %}
+{% extends "layouts/base.html" %} 
 {% block title %} Cancel Equipment Reservation {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
 
 <form method="post">
   {% csrf_token %}
   <div class="modal">
-<label class="pole__label">Do you want to cancel this equipment?</label>
-<div class="buttons" >
-<button class="btn" type="submit">Submit</button>
-<button type="reset" class="btn"><a class="link link-btn" href="{% url 'equipment:get_equipments' %}" role="button" > No </a></button>
-</div>
-</div>
+    <h2>Cancel equipment reservation</h2>
+    <p class=""
+      >Do you want to cancel your reservation for this equipment?</p
+    >
+    <div class="buttons">
+      <button class="btn" type="submit">Submit</button>
+      <button type="reset" class="btn">
+        <a
+          class="link link-btn"
+          href="{% url 'equipment:get_equipments' %}"
+          role="button"
+        >
+          No
+        </a>
+      </button>
+    </div>
+  </div>
 </form>
 
+{% endblock content %}
 
-  {% endblock content %}
-
-  <!-- Специфічний JS буде тут  -->
-  {% block javascripts %}{% endblock javascripts %}
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}

@@ -1,20 +1,23 @@
-{% extends "layouts/base.html" %} {% block title %} change equipment {% endblock %}
+{% extends "layouts/base.html" %} 
+{% block title %} change equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}
+{% endblock stylesheets %} {% block content %}
 
 <form method="POST" action="{% url 'equipment:change_equipment' equipment_id=equipment.id %}" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="modal">
+    <h2>Change equipment</h2>
     <div class="pole">
-      <label class="pole__label">Equipment name:</label>
-      <input type="text" name="equipment_name" value="{{ equipment.equipment_name }}" required>
+      <label class="pole__label">Name:</label>
+      <input class="pole__input" type="text" name="equipment_name" value="{{ equipment.equipment_name }}" required>
       <span>{{ form.errors.equipment_name }}</span>
     </div>
 
     <div class="pole">
       <label class="pole__label">
-        Choose equipment category:
+        Category:
         <select class="pole__input" name="categories" required>
           {% for category in categories %}
           <option value="{{ category.equipment_category_name }}" {% if category.equipment_category_name == equipment.categories %} selected {% endif %}>
@@ -26,20 +29,20 @@
     </div>
     <img class="img" src="{{ equipment.photo_of_equipment.url }}" alt="Photo of equipment" width="200">
     <div class="pole">
-      <label class="pole__label">Photo of equipment:</label>
-      <input type="file" name="photo_of_equipment" accept="image/*">
+      <label class="pole__label">Photo:</label>
+      <input class="pole__input" type="file" name="photo_of_equipment" accept="image/*">
       <span>{{ form.errors.photo_of_equipment }}</span>
     </div>
 
     <div class="pole">
-      <label class="pole__label">Weight of equipment kg:</label>
-      <input type="number" name="weight_of_equipment_kg" value="{{ equipment.weight_of_equipment_kg }}" required>
+      <label class="pole__label">Weight, kg:</label>
+      <input class="pole__input" type="number" name="weight_of_equipment_kg" value="{{ equipment.weight_of_equipment_kg }}" required>
       <span>{{ form.errors.weight_of_equipment_kg }}</span>
     </div>
 
     <div class="pole">
-      <label class="pole__label">Equipment description:</label>
-      <textarea name="equipment_description" required>{{ equipment.equipment_description }}</textarea>
+      <label class="pole__label">Description:</label>
+      <textarea class="pole__input" name="equipment_description" required>{{ equipment.equipment_description }}</textarea>
       <span>{{ form.errors.equipment_description }}</span>
     </div>
 

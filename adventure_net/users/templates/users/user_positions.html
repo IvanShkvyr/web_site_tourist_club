@@ -1,20 +1,21 @@
 {% extends "layouts/base.html" %}
-{% block title %} category {% endblock %}
+{% block title %} User position {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
 <div class="modal">
-<a class="link" href="{% url 'users:add_user_position' %}" role="button">Add user position</a>
+<a class="link" href="{% url 'users:add_user_position' %}" role="button"><button class="btn btn-right" type="button"> Add user position</button></a>
 
 
 <ul class="list" >
     {% for user_position in user_positions%}
-    <li class="items">
+    <li class="items-left">
       {{user_position.positions_category}} - {{user_position.positions_category_info}}
       
       <div class="buttons">
-      <a class="link" href="{% url 'users:change_user_position' user_position.id %}" role="button"><button class="btn" type="button"> Change</button></a>
-      <a class="link" href="{% url 'users:delete_user_position' user_position.id %}" role="button" class="contrast"><button class="btn" type="button"> Delete</button></a>
+      <a class="link" href="{% url 'users:change_user_position' user_position.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+      <a class="link" href="{% url 'users:delete_user_position' user_position.id %}" role="button" class="contrast"><button class="btn btn-right" type="button"> Delete</button></a>
     </div>
     </li>
     {% endfor %}

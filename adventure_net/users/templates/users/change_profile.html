@@ -21,39 +21,39 @@
 
     {% csrf_token %}
     <div class="modal">
-
+      <h2>Change Profile</h2>
     {% if has_permission %}
-      <a class="link" href="{% url 'users:add_user_position' %}" role="button"><button class="btn" type="button"> add_user_position</button></a>
-      <a class="link" href="{% url 'users:get_user_position' %}" role="button"><button class="btn" type="button"> get_user_position</button></a>
+      <a class="link" href="{% url 'users:add_user_position' %}" role="button"><button class="btn btn-right" type="button"> add_user_position</button></a>
+      <a class="link" href="{% url 'users:get_user_position' %}" role="button"><button class="btn btn-right" type="button"> get_user_position</button></a>
     {% endif %}
 
       <div class="pole">
-        <label class="pole__label">User Name: </label>
+        <label class="pole__label">Name: </label>
         {{ form.user_name }}
         <span>{{ form.errors.user_name }}</span>
       </div>
 
       <div class="pole">
-        <label class="pole__label">User Lastname: </label>
+        <label class="pole__label">Lastname: </label>
         {{ form.user_lastname }}
         <span>{{ form.errors.user_lastname }}</span>
       </div>
 
       <div class="pole">
-        <label class="pole__label">User Birthday: </label>
+        <label class="pole__label">Birthday: </label>
         {{ form.user_birthday }}
         <span>{{ form.errors.user_birthday }}</span>
       </div>
 
       <div class="pole">
-        <label class="pole__label">User Avatar: </label>
+        <label class="pole__label">Avatar: </label>
         {{ form.user_avatar }}
         <span>{{ form.errors.user_avatar }}</span>
       </div>
 
       {% if has_permission %}
       <div class="pole">
-        <label class="pole__label">User Position: </label>
+        <label class="pole__label">Position: </label>
         {{ form.user_position }}
         <span>{{ form.errors.user_position }}</span>
       </div>
@@ -62,19 +62,19 @@
 
 
       <div class="pole">
-        <label class="pole__label">User Experience: </label>
+        <label class="pole__label">Experience: </label>
         {{ form.user_experience }}
         <span>{{ form.errors.user_experience }}</span>
       </div>
 
       <div class="pole">
-        <label class="pole__label">User Location: </label>
+        <label class="pole__label">Location: </label>
         {{ form.user_location }}
         <span>{{ form.errors.user_location }}</span>
       </div>
 
       <div class="pole">
-        <label class="pole__label">User Info: </label>
+        <label class="pole__label">Info: </label>
         {{ form.user_info }}
         <span>{{ form.errors.user_info }}</span>
       </div>

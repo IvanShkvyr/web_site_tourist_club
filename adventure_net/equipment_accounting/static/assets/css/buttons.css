@@ -1,0 +1,29 @@
+.buttons {
+    margin-top: 10px;
+  }
+  .buttons-right {
+    margin-top: 0px;
+    margin-left: 20px;
+  }
+  .btn {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 10px;
+      border-radius: 3px;
+      border: none;
+      color: black;
+      font-weight: bold;
+    }
+    .btn-right {
+      padding: 0px;
+      font-weight: normal;
+      font-size: x-small;
+    }
+    .btn:hover {
+      background-color: RoyalBlue;
+    }
+    .buttons-block {
+      display: flex;
+    }
+    .buttons-small {
+      
+    }

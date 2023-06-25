@@ -1,0 +1,14 @@
+.card {
+    margin-top: 10px;
+    display: flex;
+  }
+
+.card__content {
+    /* padding-top: 10px; */
+    padding-left: 20px;
+    text-align: left;
+    /* font-size: small; */
+}
+.card__image-frame {
+
+}

@@ -5,11 +5,12 @@
 {% block stylesheets %}{% endblock stylesheets %}
 {% block content %}
 <div class="modal">
+  <h2>Equipment</h2>
   <div class="category">
     {% if has_permission %}
-    <a class="link" href="{% url 'equipment:add_equipment' %}" role="button">Add equipment</a>
-    <a class="link" href="{% url 'equipment:get_category' %}" role="button">Get categories</a>
-    <a class="link" href="{% url 'equipment:add_category' %}" role="button">Add category</a>
+    <a class="link" href="{% url 'equipment:add_equipment' %}" role="button"><button class="btn btn-right" type="button">Add equipment</button></a>
+    <a class="link" href="{% url 'equipment:get_category' %}" role="button"><button class="btn btn-right" type="button">Get categories</button></a>
+    <a class="link" href="{% url 'equipment:add_category' %}" role="button"><button class="btn btn-right" type="button">Add category</button></a>
     {% endif %}
   </div>
 

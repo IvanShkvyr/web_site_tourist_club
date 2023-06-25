@@ -1,22 +1,23 @@
 {% extends "layouts/base.html" %}
-{% block title %} checker {% endblock %}
+{% block title %} Book equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
 
 <form method="POST" action="{% url 'equipment:book_equipment' equipment_id=equipment.id %}" enctype="multipart/form-data">
 
   {% csrf_token %}
   <div class="modal">
-  
+  <h2>Book equipment</h2>
 
     <div class="pole">
-      <label class="pole__label">Reserve equipment from: {{ form.booking_date_from }}</label>
+      <label class="pole__label">From: {{ form.booking_date_from }}</label>
       <span>{{ form.errors.booking_date_from }}</span>
     </div>
 
     <div class="pole">
-      <label class="pole__label">Reserve equipment for: {{ form.booking_date_to }}</label>
+      <label class="pole__label">For: {{ form.booking_date_to }}</label>
       <span>{{ form.errors.booking_date_to }}</span>
     </div>
 
@@ -36,8 +37,7 @@
   </div>
 </form>
 
+{% endblock content %}
 
-  {% endblock content %}
-
-  <!-- Специфічний JS буде тут  -->
-  {% block javascripts %}{% endblock javascripts %}
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}

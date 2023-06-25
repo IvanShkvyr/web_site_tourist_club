@@ -7,8 +7,9 @@
 <form method="POST">
     {% csrf_token %}
     <div class="modal">
+        <h2>Change equipment category</h2>
     <div class="pole" >
-        <label class="pole__label">Change equipment category name: </label>
+        <label class="pole__label">New name: </label>
         <input class="pole__input" type="text" name="equipment_category_name" value={{category.equipment_category_name}}>
         <span>{{form.errors.equipment_category_name}}</span>
     </div>

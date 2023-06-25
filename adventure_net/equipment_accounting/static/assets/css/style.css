@@ -1,39 +1,16 @@
+@import "reset-style.css";
+@import "card.css";
+@import "buttons.css";
+@import "equipment.css";
+@import "items.css";
 
-h1 {
-}
-.list {
-    list-style: none;
-}
-.buttons {
-  margin-top: 10px;
-}
-.buttons-right {
-  margin-top: 0px;
-  margin-left: 20px;
-}
-.btn {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 10px;
-    border-radius: 3px;
-    border: none;
-    color: black;
-    font-weight: bold;
-  }
-  .btn-right {
-    padding: 0px;
-    font-weight: normal;
-    font-size: x-small;
-  }
-  .btn:hover {
-    background-color: RoyalBlue;
-  }
+
   body {
     background-color: #e7ecf2;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
   .link {
-    text-decoration: none;
     color: black;
   }
   .link-btn {
@@ -62,33 +39,10 @@ h1 {
     flex-direction: column;
   }
   .pole__input, input[type="text"] {
-    margin-top: 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
-  ul {
-    padding: 0;
-  }
-
-    .items {
-      /* align-items: center; */
-      /* display: flex; */
-      font-size: large;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    
-    .items-left{
-      margin-top: 20px;
-      font-size: medium;
-      align-items: center;
-      display: flex;
-    }
-
-    .items-small {
-      font-size: xx-small;
-    }
-
+  
     .errorlist {
       list-style: none;
       color: red;
@@ -110,9 +64,6 @@ h1 {
     .img {
       margin-top: 10px;
     }
-    .equipment__dates {
-      width: 150px;
-    }
-    .equipment__name{
-      width: 100px;
-    }
+
+
+   

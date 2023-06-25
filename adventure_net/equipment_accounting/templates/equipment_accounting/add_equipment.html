@@ -1,4 +1,5 @@
-{% extends "layouts/base.html" %} {% block title %} add equipment {% endblock %}
+{% extends "layouts/base.html" %} 
+{% block title %} Add equipment {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
@@ -7,14 +8,15 @@
 
   {% csrf_token %}
   <div class="modal">
+    <h2>Add equipment</h2>
     <div class="pole">
-      <label class="pole__label">Equipment name: {{ form.equipment_name }}</label>
+      <label class="pole__label">Name: {{ form.equipment_name }}</label>
       <span>{{ form.errors.equipment_name }}</span>
     </div>
 
     <div class="pole">
       <label class="pole__label">
-        Choose equipment category:
+        Category:
         <select class="pole__input" name="categories" required>
           {% for category in categories %}
           <option value="{{category.equipment_category_name}}">
@@ -26,29 +28,25 @@
     </div>
 
     <div class="pole">
-      <label class="pole__label">Photo of equipment:</label>
+      <label class="pole__label">Photo:</label>
       {{ form.photo_of_equipment }}
       <span>{{ form.errors.photo_of_equipment }}</span>
     </div>
-    
+
 
     <div class="pole">
-      <label class="pole__label">Weight of equipment kg: {{ form.weight_of_equipment_kg }}</label>
+      <label class="pole__label">Weight, kg: {{ form.weight_of_equipment_kg }}</label>
       <span>{{ form.errors.weight_of_equipment_kg }}</span>
     </div>
 
     <div class="pole">
-      <label class="pole__label">Equipment description: {{ form.equipment_description }}</label>
+      <label class="pole__label">Description: {{ form.equipment_description }}</label>
       <span>{{ form.errors.equipment_description }}</span>
     </div>
     <div class="buttons">
       <button class="btn" type="submit">Submit</button>
       <button class="btn" type="reset">
-        <a
-          class="link link-btn"
-          href="{% url 'equipment:get_equipments' %}"
-          role="button"
-        >
+        <a class="link link-btn" href="{% url 'equipment:get_equipments' %}" role="button">
           Cancel
         </a>
       </button>

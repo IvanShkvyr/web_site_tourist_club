@@ -6,28 +6,33 @@
 
 
 <div class="modal">
-  
+  <h2>Заброньовано:</h2>
 <ul class="list" >
     {% for book_equipment in book_equipments %}
-    <li class="items items-left">
-      Заброньовано з {{ book_equipment.booking_date_from }} по {{ book_equipment.booking_date_to }} - {{ book_equipment.club_member }}
+    <li class="items-left">
+      з {{ book_equipment.booking_date_from }} по {{ book_equipment.booking_date_to }} - {{ book_equipment.club_member }}
       
       {% if request.user == book_equipment.club_member %}
+      <div class="buttons-block">
       <div class="buttons buttons-right">
-        <a class="link" href="{% url 'equipment:cancel_equipment_reservation' book_equipment.id %}" role="button" class="contrast">
+        <a class="link" href="{% url 'equipment:cancel_equipment_reservation' book_equipment.id %}" role="button" >
           <button class="btn btn-right" type="button">Delete</button>
         </a>
       </div>
       {% endif %}
       
-    </li>
+    
     {% endfor %}
-  </ul>
+  
   <div class="buttons buttons-right">
-    <a class="link" href="{% url 'equipment:book_equipment' equipment.id %}" role="button" class="contrast">
+    <a class="link" href="{% url 'equipment:book_equipment' equipment.id %}" role="button">
       <button class="btn btn-right" type="button">Book</button>
     </a>
+
   </div>
+</div>
+  </li>
+  </ul>
 </div>
 
 {% endblock content %}

@@ -1,7 +1,9 @@
-{% extends "layouts/base.html" %} {% block title %} add equipment {% endblock %}
+{% extends "layouts/base.html" %} 
+{% block title %} Change user position {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
 
 <form method="POST" action="{% url 'users:change_user_position' position_id=user_position.id %}">
 
