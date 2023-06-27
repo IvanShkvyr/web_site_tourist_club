@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+{% block title %} delete equipment {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
+
+<h2>Відновлення логіна та пароля</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Відправити</button>
+</form>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}

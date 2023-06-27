@@ -5,7 +5,6 @@ from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-
 class UserPositions(models.Model):
     positions_category = models.CharField(max_length=20, unique=True, null=False)
     positions_category_info = models.CharField(max_length=150)
@@ -41,3 +40,13 @@ class Profile(models.Model):
         square_image = Image.new('RGB', (225, 225), (255, 255, 255))
         square_image.paste(pic, ((225 - pic.size[0]) // 2, (225 - pic.size[1]) // 2))
         square_image.save(self.user_avatar.path)
+
+
+class RecoveryToken(models.Model):
+    token = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.token
+    

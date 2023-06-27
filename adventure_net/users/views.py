@@ -1,12 +1,23 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout, decorators
+import secrets
+import os
+
+
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, decorators
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from dotenv import load_dotenv
 
-from .forms import RegisterForm, LoginForm, CategoryForm, MembersForm, UpdateAccountInformationForm
-from .models import Profile, UserPositions
+from .forms import RegisterForm, LoginForm, CategoryForm, MembersForm,\
+    UpdateAccountInformationForm, RecoverLoginForm, ResetPasswordForm
+from .models import Profile, RecoveryToken, UserPositions
 
+load_dotenv()
 
 def main(request):
     return render(request, 'users/main.html', context={"msg": "Good news!!! It is working)"})
@@ -55,6 +66,93 @@ def logout_user(request):
     return redirect(to="users:main")
 
 
+def recover_login_password(request):
+    if request.user.is_authenticated:
+        return redirect(to="users:main")
+    
+    if request.method == 'POST':
+        form = RecoverLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                profile = Profile.objects.get(email=email)
+                user = profile.user
+                
+            except User.DoesNotExist:
+                user = None
+            if user:
+                token = secrets.token_urlsafe(32)
+                RecoveryToken.objects.create(token=token, user=user)
+                reset_url = request.build_absolute_uri(reverse('users:reset_password', args=[token]))
+
+                send_mail(
+                    'Відновлення логіна та пароля',
+                    f'Для відновлення логіна або пароля пройдіть за посиланням: {reset_url}',
+                    os.getenv('EMAIL_HOST_USER'),
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(
+                                request,
+                                "Лист з інструкціями щодо відновлення логіна та пароля\
+                                надіслано на вашу електронну адресу."
+                                )
+                return render(request, "users/main.html")
+            else:
+                messages.error(
+                                request,
+                                "Вказана електронна адреса не знайдена."
+                                )
+                return render(request, "users/main.html")
+    else:
+        form = RecoverLoginForm()
+    
+    return render(request, 'users/recover.html', {'form': form})
+
+     
+def reset_password(request, token):
+    if request.user.is_authenticated:
+        return redirect(to="users:main")
+    
+    if request.method =="GET":
+        try:
+            recovery_token = RecoveryToken.objects.get(token=token)
+        except RecoveryToken.DoesNotExist:
+            return HttpResponse("Ненадійний токен")
+        
+        user = recovery_token.user
+        login = user.username
+
+        return render(request, "users/reset_password.html", {"token":token, "login":login})
+    
+    elif request.method == "POST":
+        form = ResetPasswordForm(request.POST)
+
+        if form.is_valid():
+            password = form.cleaned_data["password"]
+
+            try:
+                recovery_token = RecoveryToken.objects.get(token=token)
+            except RecoveryToken.DoesNotExist:
+                return HttpResponse("Ненадійний токен")
+            
+            user = recovery_token.user
+            user.set_password(password)
+            user.save()
+
+            recovery_token.delete()
+
+            return redirect('users:password_reset_success')
+        
+        return render(request, 'users/reset_password.html', {'form': form, 'token': token})
+
+
+def password_reset_success(request):
+    if request.user.is_authenticated:
+        return redirect(to="users:main")
+    return render(request, 'users/password_reset_success.html')
+
+
 @decorators.login_required(login_url='/login/')
 def profile_user(request, user_id):
     allowed_positions = ["Head"] #### Винести в окремий файл
@@ -94,8 +192,6 @@ def change_profile(request, user_id):
 
     if request.method == "POST":
         form = MembersForm(request.POST or None, request.FILES or None, instance=member)
-
-        # form = MembersForm(request.POST, request.FILES, instance=member)
         if form.is_valid():
             form.save()
             messages.success(request, "Дані корисувача успішно змінені")
@@ -197,7 +293,11 @@ def change_user_position(request, position_id):
             )
     else:
         form = CategoryForm(instance=user_position)
-    return render(request, "users/change_user_position.html", context={"form": form, "user_position": user_position})
+    return render(
+                    request,
+                    "users/change_user_position.html",
+                    context={"form": form, "user_position": user_position}
+                 )
 
 
 @decorators.login_required(login_url='/login/')
