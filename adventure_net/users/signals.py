@@ -26,5 +26,7 @@ def create_user_positions(sender, **kwargs):
             {'positions_category': 'Sports events organizer', 'positions_category_info': 'Sports events organizer coordinating athletic activities and competitions.'},
             {'positions_category': 'Events organizer', 'positions_category_info': 'Events organizer planning and executing various club events.'},
         ]
-        UserPositions.objects.bulk_create([UserPositions(**position) for position in positions])
-
+        for position in positions:
+            category = position['positions_category']
+            category_info = position['positions_category_info']
+            UserPositions.objects.get_or_create(positions_category=category, defaults={'positions_category_info': category_info})

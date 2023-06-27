@@ -1,7 +1,8 @@
 from datetime import datetime
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.forms import CharField, PasswordInput, ModelForm, TextInput, ImageField,\
-DateField, EmailField, ModelMultipleChoiceField, SelectMultiple, SelectDateWidget
+    DateField, EmailField, ModelMultipleChoiceField, SelectMultiple, SelectDateWidget,\
+    Form
 
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
@@ -77,3 +78,11 @@ class UpdateAccountInformationForm(ModelForm):
     class Meta:
         model = User
         fields = ['username', 'password']
+
+
+class RecoverLoginForm(Form):
+    email = EmailField(label="Електронна адреса")
+
+
+class ResetPasswordForm(Form):
+    password = CharField(label='Новий пароль', widget=PasswordInput)
