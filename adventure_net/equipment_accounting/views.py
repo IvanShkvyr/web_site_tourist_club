@@ -8,14 +8,19 @@ from django.db.models import Q, F
 from .forms import EquipmentsForm, EquipmentsCategoriesForm, BookingEquipmentsForm
 from .models import Equipments, EquipmentsCategories, EquipmentBooking
 from users.models import Profile
-
+from adventure_net.messages import MSG_WELCOME, MSG_INVALID_DATA, MSG_ACCESS_DENIED,\
+    MSG_EQUIPMENT_CATEGORY_ADDED, MSG_EQUIPMENT_CATEGORY_UPDATED, MSG_EQUIPMENT_CATEGORY_DELETED,\
+    MSG_EQUIPMENT_ADDED, MSG_EQUIPMENT_UPDATED, MSG_EQUIPMENT_DELETED, MSG_INVALID_START_DATE,\
+    MSG_INVALID_END_DATE, MSG_INVALID_BOOKING_DURATION, MSG_INVALID_BOOKING_PERIOD_OVERLAP,\
+    MSG_EQUIPMENT_RESERVED_SUCCESSFULLY, MSG_BOOKING_PERIOD_DELETED
+    
 
 @login_required(login_url='/login/')
 def checker(request):
     return render(
         request,
         "equipment_accounting/checker.html",
-        context={"msg": "Good news!!! It is working)"},
+        context={"msg": MSG_WELCOME},
     )
 
 
@@ -44,10 +49,10 @@ def add_category(request):
         if form.is_valid():
             data_equipment_categorie = form.save(commit=False)
             data_equipment_categorie.save()
-            messages.success(request, "Категорію додано до переліку категорій обладнання")
+            messages.success(request, MSG_EQUIPMENT_CATEGORY_ADDED)
             return redirect(to='equipment:get_category')
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(
                             request,
                             "equipment_accounting/add_category.html",
@@ -73,10 +78,10 @@ def change_category(request, category_id):
             EquipmentsCategories.objects.filter(pk=category_id).update(
                 equipment_category_name=request.POST["equipment_category_name"],
                 )
-            messages.success(request, "Вітаю! Категорію успішно змінено.")
+            messages.success(request, MSG_EQUIPMENT_CATEGORY_UPDATED)
             return redirect(to="equipment:get_category")
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(
                 request, "equipment_accounting/change_category.html", context={"form": form}
             )
@@ -90,7 +95,7 @@ def delete_category(request, category_id):
         return redirect(to="equipment:get_equipments")
     if request.method == "POST":
         EquipmentsCategories.objects.filter(pk=category_id).delete()
-        messages.success(request, "Вітаю! Категорію успішно видалено.")
+        messages.success(request, MSG_EQUIPMENT_CATEGORY_DELETED)
         return redirect(to="equipment:get_category")
     return render(request, "equipment_accounting/delete_category.html")
 
@@ -127,10 +132,10 @@ def add_equipment(request):
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
                 equipment.equipment_category.set([category])
-            messages.success(request, "Вітаю! Створено нова позиція обладнання.")
+            messages.success(request, MSG_EQUIPMENT_ADDED)
             return redirect(to="equipment:get_equipments")
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(request, "equipment_accounting/add_equipment.html", context={'form': form, 'categories': categories})
     return render(request, "equipment_accounting/add_equipment.html", context={'form': EquipmentsForm(), 'categories': categories})
 
@@ -157,10 +162,10 @@ def change_equipment(request, equipment_id):
             choise_categories = EquipmentsCategories.objects.filter(equipment_category_name__in=request.POST.getlist("categories"))
             for category in choise_categories:
                 equipment.equipment_category.set([category])
-            messages.success(request, "Вітаю! Дані по обладнанню успішно змінені.")
+            messages.success(request, MSG_EQUIPMENT_UPDATED)
             return redirect(to="equipment:get_equipments")
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(
                 request, "equipment_accounting/change_equipment.html", context={"form": form, 'categories': categories}
             )
@@ -174,7 +179,7 @@ def delete_equipment(request, equipment_id):
     
     if request.method == "POST":
         Equipments.objects.filter(pk=equipment_id).delete()
-        messages.success(request, "Вітаю! Дані про обладнання успішно видалено.")
+        messages.success(request, MSG_EQUIPMENT_DELETED)
         return redirect(to="equipment:get_equipments")
     return render(request, "equipment_accounting/delete_equipment.html")
 
@@ -189,11 +194,11 @@ def book_equipment(request, equipment_id):
             booking_date_from = form.cleaned_data.get("booking_date_from")
             booking_date_to = form.cleaned_data.get("booking_date_to")
             if booking_date_from and booking_date_to and booking_date_from > booking_date_to:
-                messages.error(request, "Початкова дата має бути меншою за кінцеву дату") ###################################
+                messages.error(request, MSG_INVALID_START_DATE)
             elif booking_date_from and booking_date_from < datetime.now().date():
-                messages.error(request, "Початкова дата має бути більшою за поточну дату") ###################################
+                messages.error(request, MSG_INVALID_END_DATE)
             elif (booking_date_to - booking_date_from).days > 30:
-                messages.error(request, "Термін бронювання не повинен перевищувати 30 днів") ###################################
+                messages.error(request, MSG_INVALID_BOOKING_DURATION)
             else:
                 conflicting_bookings = EquipmentBooking.objects.filter(
                     Q(reserved_equipment=equipment) &
@@ -203,13 +208,13 @@ def book_equipment(request, equipment_id):
                     )
                 )
                 if conflicting_bookings.exists():
-                    messages.error(request, "Період бронювання перекривається з іншими бронюваннями")
+                    messages.error(request, MSG_INVALID_BOOKING_PERIOD_OVERLAP)
                 else:
                     booking = form.save(commit=False)
                     booking.club_member = request.user
                     booking.reserved_equipment = equipment
                     booking.save()
-                    messages.success(request, "Вітаю! Обладнання заброньовано")
+                    messages.success(request, MSG_EQUIPMENT_RESERVED_SUCCESSFULLY)
                     return redirect(to="equipment:get_equipments")
         else:
             return render(request, "equipment_accounting/book_equipment.html", context={"form": form})
@@ -236,11 +241,9 @@ def get_book_equipment(request, equipment_id):
 def cancel_equipment_reservation(request, book_equipment):
     if request.method == "POST":
         EquipmentBooking.objects.filter(pk=book_equipment).delete()
-        messages.success(request, "Період бронювання успішно видалено!")
+        messages.success(request, MSG_BOOKING_PERIOD_DELETED)
         return redirect(to="equipment:get_equipments")
     return render(request, "equipment_accounting/cancel_equipment_reservation.html")
-
-
 
 
 def permissions_equipment_checker(request):
@@ -255,7 +258,7 @@ def permissions_equipment_checker(request):
     allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
 
     if not any(position.positions_category in allowed_positions for position in user_positions):
-        messages.error(request, "Ви не маєте прав доступу до цієї сторінки") ###################################
+        messages.error(request, MSG_ACCESS_DENIED)
         permission = False
         return permission
     else:

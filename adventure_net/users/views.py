@@ -16,16 +16,21 @@ from dotenv import load_dotenv
 from .forms import RegisterForm, LoginForm, CategoryForm, MembersForm,\
     UpdateAccountInformationForm, RecoverLoginForm, ResetPasswordForm
 from .models import Profile, RecoveryToken, UserPositions
+from adventure_net.messages import MSG_WELCOME, MSG_PLACEHOLDERS, MSG_USER_DATA_ADDED,\
+    MSG_INVALID_DATA, MSG_ACCESS_DENIED, MSG_INVALID_USERNAME_OR_PASSWORD,\
+    MSG_WELCOME_TOUR_CLUB, MSG_LOGIN_PASSWORD_RECOVERY, MSG_PASSWORD_RESET_INSTRUCTIONS, \
+    MSG_EMAIL_NOT_FOUND, MSG_PASSWORD_RESET_LINK, MSG_USER_DATA_UPDATED, MSG_USER_DATA_DELETE, \
+    MSG_MEMBERSHIP_ADDED, MSG_MEMBERSHIP_DATA_UPDATED, MSG_MEMBERSHIP_DATA_DELETE, \
+    MSG_LOGIN_PASSWORD_UPDATED
 
 load_dotenv()
 
 def main(request):
-    return render(request, 'users/main.html', context={"msg": "Good news!!! It is working)"})
+    return render(request, 'users/main.html', context={"msg": MSG_WELCOME})
+
 
 def placeholders(request):
-    return render(request, 'users/placeholders.html', context={"msg": "This webpage is under development.\
-                                                                We apologize for any inconvenience. Please\
-                                                                check back later to access the updated version."})
+    return render(request, 'users/placeholders.html', context={"msg": MSG_PLACEHOLDERS})
  
 
 def signup_user(request):
@@ -37,10 +42,10 @@ def signup_user(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Вітаємо! Користувача успішно створено.")
+            messages.success(request, MSG_USER_DATA_ADDED)
             return redirect(to="users:main")
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(request, 'users/singup.html', context={'form': form})
     return render(request, 'users/singup.html', context={'form': RegisterForm()})
 
@@ -52,10 +57,10 @@ def login_user(request):
     if request.method == "POST":
         user = authenticate(username=request.POST['username'], password=request.POST['password'])
         if user is None:
-            messages.error(request, 'Введено неправильне ім\'я користувача або пароль!')
+            messages.error(request, MSG_INVALID_USERNAME_OR_PASSWORD)
             return redirect(to='users:login')
         login(request, user)
-        messages.success(request, "Вітаємо в турклубі!")
+        messages.success(request, MSG_WELCOME_TOUR_CLUB)
         return redirect(to="users:main")
     return render(request, 'users/login.html', context={'form': LoginForm()})
 
@@ -86,22 +91,21 @@ def recover_login_password(request):
                 reset_url = request.build_absolute_uri(reverse('users:reset_password', args=[token]))
 
                 send_mail(
-                    'Відновлення логіна та пароля',
-                    f'Для відновлення логіна або пароля пройдіть за посиланням: {reset_url}',
+                    MSG_LOGIN_PASSWORD_RECOVERY,
+                    f'{MSG_PASSWORD_RESET_LINK} {reset_url}',
                     os.getenv('EMAIL_HOST_USER'),
                     [email],
                     fail_silently=False,
                 )
                 messages.success(
                                 request,
-                                "Лист з інструкціями щодо відновлення логіна та пароля\
-                                надіслано на вашу електронну адресу."
+                                MSG_PASSWORD_RESET_INSTRUCTIONS
                                 )
                 return render(request, "users/main.html")
             else:
                 messages.error(
                                 request,
-                                "Вказана електронна адреса не знайдена."
+                                MSG_EMAIL_NOT_FOUND
                                 )
                 return render(request, "users/main.html")
     else:
@@ -161,7 +165,11 @@ def profile_user(request, user_id):
 
     user_profile = get_object_or_404(Profile, user_id=user_id)
     user_login = user_profile.user.username
-    return render(request, 'users/profile.html', context={'users': user_profile, 'login': user_login, 'has_permission':has_permission})
+    return render(request, 'users/profile.html', context={
+                                                            'users': user_profile,
+                                                            'login': user_login,
+                                                            'has_permission':has_permission
+                                                            })
 
 
 @decorators.login_required(login_url='/login/')
@@ -187,17 +195,17 @@ def change_profile(request, user_id):
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
     if member.user != request.user and not has_permission:
-        messages.error(request, 'Ви не маєте прав доступу до цієї сторінки')
+        messages.error(request, MSG_ACCESS_DENIED)
         return redirect(to='users:club_members')
 
     if request.method == "POST":
         form = MembersForm(request.POST or None, request.FILES or None, instance=member)
         if form.is_valid():
             form.save()
-            messages.success(request, "Дані корисувача успішно змінені")
+            messages.success(request, MSG_USER_DATA_UPDATED)
             return redirect('users:club_members')
     else:
-        messages.error(request, "Будь ласка введіть коректні дані. ")
+        messages.error(request, MSG_INVALID_DATA)
         form = MembersForm(instance=member)
     return render(
                 request,
@@ -217,7 +225,7 @@ def delete_profile(request, user_id):
         user = member.user
 
         User.objects.filter(pk = user.id).delete()
-        messages.success(request, "Дані корисувача успішно видалені")
+        messages.success(request, MSG_USER_DATA_DELETE)
         return redirect(to="users:club_members")
     return render(request, "users/delete_user.html")
 
@@ -247,10 +255,10 @@ def add_user_position(request):
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Вітаємо! Позицію члена клуба додано")
+            messages.success(request, MSG_MEMBERSHIP_ADDED)
             return redirect(to='users:get_user_position')
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(
                             request,
                             "users/add_user_position.html",
@@ -282,10 +290,10 @@ def change_user_position(request, position_id):
             UserPositions.objects.filter(pk=position_id).update(
                 positions_category_info=request.POST["positions_category_info"]
             )
-            messages.success(request, "Вітаємо! Позицію члена клуба змінено")
+            messages.success(request, MSG_MEMBERSHIP_DATA_UPDATED)
             return redirect(to="users:get_user_position")
         else:
-            messages.error(request, "Будь ласка введіть коректні дані. ")
+            messages.error(request, MSG_INVALID_DATA)
             return render(
                 request,
                 "users/change_user_position.html",
@@ -308,7 +316,7 @@ def delete_user_position(request, position_id):
     
     if request.method == "POST":
         UserPositions.objects.filter(pk = position_id).delete()
-        messages.success(request, "Вітаємо! Позицію члена клуба видалено")
+        messages.success(request, MSG_MEMBERSHIP_DATA_DELETE)
         return redirect(to="users:get_user_position")
     return render(request, "users/delete_user_position.html")
 
@@ -318,10 +326,10 @@ def update_account_information(request, user_id):
     member = get_object_or_404(Profile, pk=user_id)
 
     if member.user != request.user:
-        messages.error(request, 'Ви не маєте прав доступу до цієї сторінки')
+        messages.error(request, MSG_ACCESS_DENIED)
         return redirect(to='users:club_members')
 
-    user = member.user  # Отримуємо користувача з профілю
+    user = member.user
 
     if request.method == "POST":
         form = UpdateAccountInformationForm(request.POST, instance=user)
@@ -329,10 +337,10 @@ def update_account_information(request, user_id):
             user.username = form.cleaned_data['username']  # Оновлюємо поле логіну
             user.set_password(form.cleaned_data['password'])  # Оновлюємо пароль
             user.save()
-            messages.success(request, 'Логін та пароль успішно оновлені.')
+            messages.success(request, MSG_LOGIN_PASSWORD_UPDATED)
             return redirect('users:club_members')
         else:
-            messages.error(request, 'Будь ласка, виправте помилки у формі.')
+            messages.error(request, MSG_INVALID_DATA)
     else:
         form = UpdateAccountInformationForm(instance=user)
 
@@ -341,10 +349,6 @@ def update_account_information(request, user_id):
         'users/update_account_information.html',
         context={'form': form, 'member': member}
     )
-
-
-
-
 
 
 def permissions_signup_checker(request):
@@ -359,7 +363,7 @@ def permissions_signup_checker(request):
     allowed_positions = ["Head"] #### Винести в окремий файл
 
     if not any(position.positions_category in allowed_positions for position in user_positions):
-        messages.error(request, "Ви не маєте прав доступу до цієї сторінки") ###################################
+        messages.error(request, MSG_ACCESS_DENIED) ###################################
         permission = False
         return permission
     else:
