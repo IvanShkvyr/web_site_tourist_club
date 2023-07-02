@@ -30,25 +30,20 @@
     </div>
 
     <div class="buttons">
+        {% if permission %}
         <a
           class="link"
           href="{% url 'equipment:change_equipment' equipment.id %}"
           role="button"
           ><button class="btn" type="button">Change</button></a
         >
+        {% endif %}
         <a
           class="link"
           href="{% url 'equipment:book_equipment' equipment.id %}"
           role="button"
           class="contrast"
           ><button class="btn" type="button">Book</button></a
-        >
-        <a
-          class="link"
-          href="{% url 'equipment:cancel_equipment_reservation' equipment.id %}"
-          role="button"
-          class="contrast"
-          ><button class="btn" type="button">Сancel_reservation</button></a
         >
     </div>
   

@@ -12,7 +12,7 @@
     <li class="items-left">
       з {{ book_equipment.booking_date_from }} по {{ book_equipment.booking_date_to }} - {{ book_equipment.club_member }}
       
-      {% if request.user == book_equipment.club_member %}
+      {% if request.user == book_equipment.club_member or permission%}
       <div class="buttons-block">
       <div class="buttons buttons-right">
         <a class="link" href="{% url 'equipment:cancel_equipment_reservation' book_equipment.id %}" role="button" >
