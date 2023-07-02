@@ -21,6 +21,7 @@ MSG_USER_DATA_DELETE = "Дані корисувача успішно видал�
 MSG_MEMBERSHIP_ADDED = "Вітаємо! Посаду члена клуба додано"
 MSG_MEMBERSHIP_DATA_UPDATED = "Посаду члена клуба змінено"
 MSG_MEMBERSHIP_DATA_DELETE = "Посаду члена клуба видалено"
+MSG_UNTRUSTED_TOKEN = "Ненадійний токен"
 
 
 # These messages are used in the file adventure_net\equipment_accounting\views.py

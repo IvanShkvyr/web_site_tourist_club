@@ -13,7 +13,7 @@ from adventure_net.messages import MSG_WELCOME, MSG_INVALID_DATA, MSG_ACCESS_DEN
     MSG_EQUIPMENT_ADDED, MSG_EQUIPMENT_UPDATED, MSG_EQUIPMENT_DELETED, MSG_INVALID_START_DATE,\
     MSG_INVALID_END_DATE, MSG_INVALID_BOOKING_DURATION, MSG_INVALID_BOOKING_PERIOD_OVERLAP,\
     MSG_EQUIPMENT_RESERVED_SUCCESSFULLY, MSG_BOOKING_PERIOD_DELETED
-    
+from adventure_net.permissions import PER_CHANGE_EQUIPMENTS
 
 @login_required(login_url='/login/')
 def checker(request):
@@ -104,7 +104,7 @@ def delete_category(request, category_id):
 def get_equipments(request):
     check_equipment_booking(request)
 
-    allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
+    allowed_positions = PER_CHANGE_EQUIPMENTS
     profile = request.user.profile
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
@@ -121,6 +121,7 @@ def get_equipments(request):
 def add_equipment(request):
     permission = permissions_equipment_checker(request)
     if not permission:
+        messages.error(request, MSG_ACCESS_DENIED)
         return redirect(to="equipment:get_equipments")
     
     categories = EquipmentsCategories.objects.all()
@@ -142,14 +143,16 @@ def add_equipment(request):
 
 @login_required(login_url='/login/')
 def detail_equipment(request, equipment_id):
+    permission = permissions_equipment_checker(request)
     equipment = get_object_or_404(Equipments, pk=equipment_id)
-    return render(request, 'equipment_accounting/detail.html', context={'equipment': equipment})
+    return render(request, 'equipment_accounting/detail.html', context={'equipment': equipment, "permission":permission})
 
 
 @login_required(login_url='/login/')
 def change_equipment(request, equipment_id):
     permission = permissions_equipment_checker(request)
     if not permission:
+        messages.error(request, MSG_ACCESS_DENIED)
         return redirect(to="equipment:get_equipments")
     
     equipment = get_object_or_404(Equipments, pk=equipment_id)
@@ -175,6 +178,7 @@ def change_equipment(request, equipment_id):
 def delete_equipment(request, equipment_id):
     permission = permissions_equipment_checker(request)
     if not permission:
+        messages.error(request, MSG_ACCESS_DENIED)
         return redirect(to="equipment:get_equipments")
     
     if request.method == "POST":
@@ -229,12 +233,13 @@ def book_equipment(request, equipment_id):
 
 @login_required(login_url='/login/')
 def get_book_equipment(request, equipment_id):
+    permission = permissions_equipment_checker(request)
     equipment = get_object_or_404(Equipments, pk=equipment_id)
     book_equipments = EquipmentBooking.objects.filter(reserved_equipment=equipment).order_by('booking_date_from')
     return render(
         request,
         "equipment_accounting/get_book_equipment.html",
-        context={"book_equipments": book_equipments, "equipment": equipment}
+        context={"book_equipments": book_equipments, "equipment": equipment, "permission": permission}
     )
 
 @login_required(login_url='/login/')
@@ -255,10 +260,9 @@ def permissions_equipment_checker(request):
         permission = False
         return permission
 
-    allowed_positions = ["Equipment manager", "Head"] #### Винести в окремий файл
+    allowed_positions = PER_CHANGE_EQUIPMENTS
 
     if not any(position.positions_category in allowed_positions for position in user_positions):
-        messages.error(request, MSG_ACCESS_DENIED)
         permission = False
         return permission
     else:

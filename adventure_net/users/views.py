@@ -21,7 +21,8 @@ from adventure_net.messages import MSG_WELCOME, MSG_PLACEHOLDERS, MSG_USER_DATA_
     MSG_WELCOME_TOUR_CLUB, MSG_LOGIN_PASSWORD_RECOVERY, MSG_PASSWORD_RESET_INSTRUCTIONS, \
     MSG_EMAIL_NOT_FOUND, MSG_PASSWORD_RESET_LINK, MSG_USER_DATA_UPDATED, MSG_USER_DATA_DELETE, \
     MSG_MEMBERSHIP_ADDED, MSG_MEMBERSHIP_DATA_UPDATED, MSG_MEMBERSHIP_DATA_DELETE, \
-    MSG_LOGIN_PASSWORD_UPDATED
+    MSG_LOGIN_PASSWORD_UPDATED, MSG_UNTRUSTED_TOKEN
+from adventure_net.permissions import PER_CHANGE_PROFILE
 
 load_dotenv()
 
@@ -122,7 +123,7 @@ def reset_password(request, token):
         try:
             recovery_token = RecoveryToken.objects.get(token=token)
         except RecoveryToken.DoesNotExist:
-            return HttpResponse("Ненадійний токен")
+            return HttpResponse(MSG_UNTRUSTED_TOKEN)
         
         user = recovery_token.user
         login = user.username
@@ -138,7 +139,7 @@ def reset_password(request, token):
             try:
                 recovery_token = RecoveryToken.objects.get(token=token)
             except RecoveryToken.DoesNotExist:
-                return HttpResponse("Ненадійний токен")
+                return HttpResponse(MSG_UNTRUSTED_TOKEN)
             
             user = recovery_token.user
             user.set_password(password)
@@ -159,7 +160,7 @@ def password_reset_success(request):
 
 @decorators.login_required(login_url='/login/')
 def profile_user(request, user_id):
-    allowed_positions = ["Head"] #### Винести в окремий файл
+    allowed_positions = PER_CHANGE_PROFILE
     profile = request.user.profile
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
@@ -174,7 +175,7 @@ def profile_user(request, user_id):
 
 @decorators.login_required(login_url='/login/')
 def get_users(request):
-    allowed_positions = ["Head"] #### Винести в окремий файл
+    allowed_positions = PER_CHANGE_PROFILE
     profile = request.user.profile
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
@@ -190,7 +191,7 @@ def get_users(request):
 def change_profile(request, user_id):
     member = get_object_or_404(Profile, pk=user_id)
 
-    allowed_positions = ["Head"] #### Винести в окремий файл
+    allowed_positions = PER_CHANGE_PROFILE
     profile = request.user.profile
     has_permission = profile.user_position.filter(positions_category__in=allowed_positions).exists()
 
@@ -334,8 +335,8 @@ def update_account_information(request, user_id):
     if request.method == "POST":
         form = UpdateAccountInformationForm(request.POST, instance=user)
         if form.is_valid():
-            user.username = form.cleaned_data['username']  # Оновлюємо поле логіну
-            user.set_password(form.cleaned_data['password'])  # Оновлюємо пароль
+            user.username = form.cleaned_data['username']
+            user.set_password(form.cleaned_data['password'])
             user.save()
             messages.success(request, MSG_LOGIN_PASSWORD_UPDATED)
             return redirect('users:club_members')
@@ -360,10 +361,10 @@ def permissions_signup_checker(request):
         permission = False
         return permission
 
-    allowed_positions = ["Head"] #### Винести в окремий файл
+    allowed_positions = PER_CHANGE_PROFILE
 
     if not any(position.positions_category in allowed_positions for position in user_positions):
-        messages.error(request, MSG_ACCESS_DENIED) ###################################
+        messages.error(request, MSG_ACCESS_DENIED)
         permission = False
         return permission
     else:
