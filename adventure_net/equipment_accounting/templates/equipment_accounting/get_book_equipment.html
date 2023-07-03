@@ -8,7 +8,7 @@
 <div class="modal">
   <h2>Заброньовано:</h2>
 <ul class="list" >
-    {% for book_equipment in book_equipments %}
+    {% for book_equipment in book_equipment_list %}
     <li class="items-left">
       з {{ book_equipment.booking_date_from }} по {{ book_equipment.booking_date_to }} - {{ book_equipment.club_member }}
       
