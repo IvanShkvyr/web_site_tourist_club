@@ -4,7 +4,6 @@ from . import views
 app_name = "equipment"
 
 urlpatterns = [
-    path("checker/", views.checker, name="checker"),
     path("", views.get_equipments, name="get_equipments"), # table of equipment
     path("detail/<int:equipment_id>", views.detail_equipment, name="detail_equipment"), # show detail about equipment
     path("add_equipment/", views.add_equipment, name="add_equipment"), # add equipment to table
@@ -16,5 +15,5 @@ urlpatterns = [
     path("category/delete_category/<int:category_id>", views.delete_category, name="delete_category"), # delete equipment category
     path("category/book_equipment/<int:equipment_id>", views.book_equipment, name="book_equipment"),
     path("category/get_book_equipment/<int:equipment_id>", views.get_book_equipment, name="get_book_equipment"),
-    path("category/cancel_equipment_reservation/<int:book_equipment>", views.cancel_equipment_reservation, name="cancel_equipment_reservation"),
+    path("category/cancel_equipment_reservation/<int:book_equipment_id>", views.cancel_equipment_reservation, name="cancel_equipment_reservation"),
 ]
