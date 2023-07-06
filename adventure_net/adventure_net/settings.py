@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "equipment_accounting",
     "users",
+    "mapapp"
 ]
 
 MIDDLEWARE = [

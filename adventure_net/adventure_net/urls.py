@@ -23,6 +23,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("equipment/", include("equipment_accounting.urls")),
     path("", include("users.urls")),
+    path('map/', include("mapapp.urls")),
 ]
 
 if settings.DEBUG:
