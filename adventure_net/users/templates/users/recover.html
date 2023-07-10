@@ -9,7 +9,9 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Відправити</button>
+    <div class="buttons">
+    <button class="btn" type="submit">Відправити</button>
+    </div>
 </form>
 </div>
 {% endblock content %}
