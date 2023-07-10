@@ -5,8 +5,11 @@
 @import "items.css";
 
 
+
   body {
-    background-color: #e7ecf2;
+    
+    background-image: linear-gradient(to right, rgba(47, 48, 58, 0.2), rgba(47, 48, 58, 0.2)), url(../images/mountines.jpg);
+    /* background-color: #e7ecf2; */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 

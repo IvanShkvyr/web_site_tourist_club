@@ -14,9 +14,13 @@
 <ul class="list" >
     {% for member in members%}
     <li class="items items-left">
+      
       <a class="link" href="{% url 'users:profile' member.id %}" > 
         {{ member.user.username }} - {{member.user_name}} - {{member.user_lastname}}
       </a>
+      <div class="card__image-frame">
+        <img src="{{ member.user_avatar.url }}" alt="User Avatar" width="100" />
+      </div>
       <div class="buttons-block">  
       {% if request.user.username == member.user.username or has_permission %}
       

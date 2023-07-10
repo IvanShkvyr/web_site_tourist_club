@@ -20,6 +20,13 @@
       <div class="equipment__name">
       <a class="link" href="{% url 'equipment:detail_equipment' equipment.id %}" role="button" class="outline">{{ equipment.equipment_name }}</a>
       </div>
+      <div class="card__image-frame">
+        <img
+          src="{{ equipment.photo_of_equipment.url }}"
+          alt="Photo of equipment"
+          width="100"
+        />
+      </div>
       <div class="equipment__dates">
       <ul class="list">
       {% for book_equ in booking_date %}

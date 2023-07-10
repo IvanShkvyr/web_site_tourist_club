@@ -91,14 +91,14 @@
       </nav>
     </header>
     <main role="main" class="container">
-<!-- цей блок необхідно перенести у main код666 -->
-            {% if messages %}
+<!-- цей блок перенесено у main код666 -->
+            <!-- {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
                 <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                 {% endfor %}
             </ul>
-            {% endif %}
+            {% endif %} -->
 
     {% block content %}{% endblock content %} 
     {% include "includes/scripts.html" %}

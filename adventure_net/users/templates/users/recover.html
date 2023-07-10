@@ -4,14 +4,14 @@
 <!-- Специфічний CSS буде тут -->
 {% block stylesheets %}{% endblock stylesheets %} {% block content %}
 
-
+<div class="modal">
 <h2>Відновлення логіна та пароля</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Відправити</button>
 </form>
-
+</div>
 {% endblock content %}
 
 <!-- Специфічний JS буде тут  -->
