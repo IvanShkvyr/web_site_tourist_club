@@ -15,9 +15,6 @@ class EquipmentViewTest(TestCase):
     def setUp(self):
         User = get_user_model()
 
-        # 
-
-
         # Авторизація користувача user_member
         self.client_user_member = Client()
         username_member = 'testuser_Member'
@@ -61,15 +58,6 @@ class EquipmentViewTest(TestCase):
         position_equipment_manager, created = UserPositions.objects.get_or_create(positions_category=position_name_equipment_manager)
         self.user_equipment_manager.profile.user_position.add(position_equipment_manager)
 
-        # 
-        # booking = EquipmentBooking.objects.create(
-        #     club_member=user,
-        #     reserved_equipment=equipment,
-        #     booking_date_from=datetime.now().date(),
-        #     booking_date_to=datetime.now().date() + timedelta(days=7),
-        #     )
-
-
     def test_get_equipments(self):
         # Перевірка доступу неавторизованого користувача
         response = self.client.get(reverse('equipment:get_equipments'))
@@ -89,7 +77,6 @@ class EquipmentViewTest(TestCase):
 
         # Перевірка користувача, який був авторизований
         self.assertEqual(response_member.context['user'], self.user_member)
-
 
     # @unittest.skip
     def test_add_equipment(self):
@@ -121,9 +108,9 @@ class EquipmentViewTest(TestCase):
             "equipment_description": "new_equipment_2_description",
             "photo_of_equipment": "default_tool.png",
             "current_user": self.user_head.id,
-            "equipment_category": [category.id for category in equipment_category_test_2],
+            "equipment_category": equipment_category_test_2,
         }
-        
+
         # Створення нового обладнання
         # функція перевіряє регістр і повертає назву малими літерами з першою великою
         response_add_eq = self.client_user_head.post(reverse("equipment:add_equipment"), new_data)
@@ -144,85 +131,137 @@ class EquipmentViewTest(TestCase):
         self.assertEqual(new_equipment.equipment_description, "new_equipment_2_description")
         self.assertEqual(new_equipment.photo_of_equipment, "default_tool.png")
 
+    # @unittest.skip
+    def test_delete_equipment(self):
 
-#     @unittest.skip
-#     def test_delete_equipment(self):
+        # Створення запису спорядження яке необхідно видалити
+        category = EquipmentsCategories.objects.create(equipment_category_name="Category_2")
+        equipment_del = Equipments.objects.create(
+            equipment_name="New_equipment_3",
+            weight_of_equipment_kg=120.3,
+            equipment_description="new_equipment_3_description",
+            photo_of_equipment="default_tool.png",
+            current_user=self.user_member,
+        )
+        equipment_del.equipment_category.add(category)
 
-#         equipment_category = EquipmentsCategories.objects.get(equipment_category_name="Category1")
-#         equipment = Equipments.objects.create(
-#                                            equipment_name="new_equipment_3",
-#                                            weight_of_equipment_kg=100,
-#                                            photo_of_equipment="new_photo_3",
-#                                            now_booked=True
-#                                            )
-#         equipment.equipment_category.set([equipment_category])
+        # Перевірка доступу неавторизованого користувача
+        response = self.client.get(reverse('equipment:delete_equipment', args=[equipment_del.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f'/login/?next=/equipment/delete_equipment/{equipment_del.id}')
 
-#         looking_for_equipment_first = Equipments.objects.get(equipment_name="new_equipment_3")
-#         self.assertIsNotNone(looking_for_equipment_first)
+        # Перевірка доступу авторизованого користувача user_member без дозволу додавати обладнання
+        response_member = self.client_user_member.get(reverse('equipment:delete_equipment', args=[equipment_del.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, "/equipment/")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Head"
+        response_head = self.client_user_head.get(reverse('equipment:delete_equipment', args=[equipment_del.id]))
+        self.assertEqual(response_head.status_code, 200)
+        self.assertTemplateUsed(response_head, "equipment_accounting/delete_equipment.html")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Equipment_manager"
+        response_equipment_manager = self.client_equipment_manager.get(reverse('equipment:delete_equipment', args=[equipment_del.id]))
+        self.assertEqual(response_equipment_manager.status_code, 200)
+        self.assertTemplateUsed(response_equipment_manager, "equipment_accounting/delete_equipment.html")
+
+        # Перевірка чи спорядження яке необхідно видалити міститься в базі даних
+        looking_for_equipment_first = Equipments.objects.get(equipment_name="New_equipment_3")
+        self.assertIsNotNone(looking_for_equipment_first)
         
-#         response = self.client.post(reverse("equipment:delete_equipment", args=[equipment.id]))
-#         self.assertEqual(response.status_code, 302)
-#         self.assertRedirects(response, reverse("equipment:get_equipments"))
+        # Видалення спорядження з бази даних
+        response_del = self.client_equipment_manager.post(reverse("equipment:delete_equipment", args=[equipment_del.id]))
+        self.assertEqual(response_del.status_code, 302)
+        self.assertRedirects(response_del, reverse("equipment:get_equipments"))
 
-#         deleted_equipment = Equipments.objects.filter(equipment_name="new_equipment_3").first()
-#         self.assertIsNone(deleted_equipment)
+        # Перевірка чи спорядження яке видалити не міститься в базі даних
+        deleted_equipment = Equipments.objects.filter(equipment_name="New_equipment_3").first()
+        self.assertIsNone(deleted_equipment)
 
-#         with self.assertRaises(Equipments.DoesNotExist):
-#             Equipments.objects.get(equipment_name="new_equipment_3")
-
-#     @unittest.skip
-#     def test_change_equipment(self):
+    # @unittest.skip
+    def test_change_equipment(self):
         
-#         equipment_category = EquipmentsCategories.objects.get(equipment_category_name="Category1")
-#         equipment_old = Equipments.objects.create(
-#                                            equipment_name="new_equipment_old",
-#                                            weight_of_equipment_kg=200,
-#                                            photo_of_equipment="new_photo_old",
-#                                            now_booked=True
-#                                            )
-#         equipment_old.equipment_category.set([equipment_category])
+        # Створення запису спорядження яке необхідно змінити
+        category = EquipmentsCategories.objects.create(equipment_category_name="Category_2")
+        equipment_old = Equipments.objects.create(
+            equipment_name="New_equipment_4",
+            weight_of_equipment_kg=120.4,
+            equipment_description="new_equipment_4_description",
+            photo_of_equipment="default_tool.png",
+            current_user=self.user_member,
+        )
+        equipment_old.equipment_category.add(category)
 
-#         change_data = {
-#             "equipment_name": "new_equipment_new",
-#             "weight_of_equipment_kg": 202,
-#             "photo_of_equipment": "new_photo_new",
-#             "equipment_category": [EquipmentsCategories.objects.get(equipment_category_name="Category1")],
-#             "now_booked":False,
-#             }
+        change_data = {
+            "equipment_name": "New_equipment_5",
+            "weight_of_equipment_kg": 120.5,
+            "equipment_description": "new_equipment_4_description",
+            "equipment_category": [EquipmentsCategories.objects.get(equipment_category_name="Category_1")],
+            }
         
-#         response = self.client.post(reverse("equipment:change_equipment", args=[equipment_old.id]), change_data)
+        # Перевірка доступу неавторизованого користувача
+        response = self.client.get(reverse('equipment:change_equipment', args=[equipment_old.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f'/login/?next=/equipment/change_equipment/{equipment_old.id}')
 
-#         self.assertEqual(response.status_code, 302)
-#         self.assertRedirects(response, reverse("equipment:get_equipments"))
+        # Перевірка доступу авторизованого користувача user_member без дозволу додавати обладнання
+        response_member = self.client_user_member.get(reverse('equipment:change_equipment', args=[equipment_old.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, "/equipment/")
 
-#         equipment_updated = Equipments.objects.get(id=equipment_old.id)
+        # Перевірка доступу авторизованого користувача з дозволом від "Head"
+        response_head = self.client_user_head.get(reverse('equipment:change_equipment', args=[equipment_old.id]))
+        self.assertEqual(response_head.status_code, 200)
+        self.assertTemplateUsed(response_head, "equipment_accounting/change_equipment.html")
 
-#         self.assertEqual(equipment_updated.equipment_name, "new_equipment_new")
-#         self.assertEqual(equipment_updated.weight_of_equipment_kg, 202)
-#         self.assertEqual(equipment_updated.photo_of_equipment, "new_photo_new")
-#         self.assertEqual(equipment_updated.now_booked, False)
+        # Перевірка доступу авторизованого користувача з дозволом від "Equipment_manager"
+        response_equipment_manager = self.client_equipment_manager.get(reverse('equipment:change_equipment', args=[equipment_old.id]))
+        self.assertEqual(response_equipment_manager.status_code, 200)
+        self.assertTemplateUsed(response_equipment_manager, "equipment_accounting/change_equipment.html")
+        
+        # Зміна спорядження з базі даних
+        response_che = self.client_equipment_manager.post(reverse("equipment:change_equipment", args=[equipment_old.id]), change_data)
+        self.assertEqual(response_che.status_code, 302)
+        self.assertRedirects(response_che, reverse("equipment:get_equipments"))
 
-#     @unittest.skip
-#     def test_detail_equipment(self):
-#         equipment_category = EquipmentsCategories.objects.get(equipment_category_name="Category1")
-#         equipment = Equipments.objects.create(
-#                                            equipment_name="new_equipment_5",
-#                                            weight_of_equipment_kg=104,
-#                                            photo_of_equipment="new_photo_5",
-#                                            now_booked=True
-#                                            )
-#         equipment.equipment_category.set([equipment_category])
+        # Перевірка змін в базі даних
+        equipment_updated = Equipments.objects.get(id=equipment_old.id)
+        self.assertEqual(equipment_updated.equipment_name, "New_equipment_5")
+        self.assertEqual(equipment_updated.weight_of_equipment_kg, 120.5)
+        self.assertEqual(equipment_updated.equipment_description, "new_equipment_4_description")
 
-#         response = self.client.post(reverse("equipment:detail_equipment", args=[equipment.id]))
-#         response_wrong = self.client.post(reverse("equipment:detail_equipment", args=[1000]))
+    # @unittest.skip
+    def test_detail_equipment(self):
 
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(response_wrong.status_code, 404)
+        # Отримання даних спорядження
+        equipment_det = Equipments.objects.get(equipment_name="new_equipment_1")
 
-#         self.assertContains(response, "new_equipment_5")
-#         self.assertContains(response, "104")
-#         self.assertContains(response, "new_photo_5")
-#         self.assertContains(response, "True")
+        # Перевірка доступу неавторизованого користувача
+        response = self.client.get(reverse('equipment:detail_equipment', args=[equipment_det.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f'/login/?next=/equipment/detail/{equipment_det.id}')
+
+        # Перевірка доступу авторизованого користувача user_member без дозволу додавати обладнання
+        response_member = self.client_user_member.get(reverse('equipment:detail_equipment', args=[equipment_det.id]))
+        self.assertEqual(response_member.status_code, 200)
+        self.assertTemplateUsed(response_member, "equipment_accounting/detail.html")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Head"
+        response_head = self.client_user_head.get(reverse('equipment:detail_equipment', args=[equipment_det.id]))
+        self.assertEqual(response_head.status_code, 200)
+        self.assertTemplateUsed(response_head, "equipment_accounting/detail.html")
+
+        # Перевірка доступу до сторінки з неіснуючим обладнанням
+        response_wrong = self.client_user_member.get(reverse("equipment:detail_equipment", args=[1000]))
+        self.assertEqual(response_wrong.status_code, 404)
+
+        # Перевірка на наявність правильних даних в відповіді
+        self.assertContains(response_member, "new_equipment_1")
+        self.assertContains(response_member, "120")
+        self.assertContains(response_member, "new_equipment_1_description")
+        self.assertContains(response_member, "default_tool.png")
+
+
 
 # class CategoruViewTest(TestCase):
 
