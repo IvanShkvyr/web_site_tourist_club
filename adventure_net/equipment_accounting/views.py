@@ -78,8 +78,7 @@ def add_category(request):
     if request.method == "POST":
         form = EquipmentsCategoriesForm(request.POST)
         if form.is_valid():
-            data_equipment_categorie = form.save(commit=False)
-            data_equipment_categorie.save()
+            form.save()
             messages.success(request, MSG_EQUIPMENT_CATEGORY_ADDED)
             return redirect(to='equipment:get_category')
 
