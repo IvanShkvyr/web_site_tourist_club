@@ -112,7 +112,7 @@ class EquipmentViewTest(TestCase):
         }
 
         # Створення нового обладнання
-        # функція перевіряє регістр і повертає назву малими літерами з першою великою
+        #  та перевірку на зміну регістру введених даних
         response_add_eq = self.client_user_head.post(reverse("equipment:add_equipment"), new_data)
         self.assertEqual(Equipments.objects.count(), 2)
         self.assertEqual(response_add_eq.status_code, 302)
@@ -336,7 +336,7 @@ class CategoruViewTest(TestCase):
         # Перевірка доступу неавторизованого користувача
         response = self.client.get(reverse('equipment:add_category'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login/?next=/equipment/category/')
+        self.assertRedirects(response, '/login/?next=/equipment/category/add_category')
 
         # Перевірка доступу авторизованого користувача user_member без дозволу додавати обладнання
         response_member = self.client_user_member.get(reverse('equipment:add_category'))
@@ -346,60 +346,149 @@ class CategoruViewTest(TestCase):
         # Перевірка доступу авторизованого користувача з дозволом від "Head"
         response_head = self.client_user_head.get(reverse('equipment:add_category'))
         self.assertEqual(response_head.status_code, 200)
-        self.assertTemplateUsed(response_head, "equipment_accounting/category.html")
+        self.assertTemplateUsed(response_head, "equipment_accounting/add_category.html")
 
         # Перевірка доступу авторизованого користувача з дозволом від "Equipment_manager"
         response_equipment_manager = self.client_equipment_manager.get(reverse('equipment:add_category'))
         self.assertEqual(response_equipment_manager.status_code, 200)
-        self.assertTemplateUsed(response_equipment_manager, "equipment_accounting/category.html")
+        self.assertTemplateUsed(response_equipment_manager, "equipment_accounting/add_category.html")
         
+        # Створення екземпляру класу з задовільними даними та перевірку на зміну регістру введених даних
+        data = {"equipment_category_name": "CaTeGoRy2"}
+        response_add = self.client_user_head.post(reverse("equipment:add_category"), data)
+        self.assertEqual(response_add.status_code, 302)
+        self.assertEqual(EquipmentsCategories.objects.count(), 2)
+        self.assertRedirects(response_add, reverse("equipment:get_category"))
         
-        # data = {"equipment_category_name": "Category2"}
-        # response = self.client.post(reverse("equipment:add_category"), data)
-        # self.assertEqual(response.status_code, 302)
-        # self.assertEqual(EquipmentsCategories.objects.count(), 2)
-        # self.assertRedirects(response, reverse("equipment:get_category"))
+        data = {"equipment_category_name": "Category3"}
+        form = EquipmentsCategoriesForm(data=data)
+        self.assertTrue(form.is_valid())
 
-#     @unittest.skip
-#     def test_valid_form(self):
-#         data = {"equipment_category_name": "valid_value"}
-#         form = EquipmentsCategoriesForm(data=data)
-#         self.assertTrue(form.is_valid())
+        # Спроба створення екземпляру класу з дублюванням даних
+        data_twin = {"equipment_category_name": "Category2"}
+        response_add_twin = self.client_user_head.post(reverse("equipment:add_category"), data_twin)
+        self.assertEqual(response_add_twin.status_code, 200)
+        self.assertEqual(EquipmentsCategories.objects.count(), 2)
+        self.assertTemplateUsed(response_add_twin, "equipment_accounting/add_category.html")
 
-#     @unittest.skip
-#     def test_max_length_of_category_name(self):
-#         data = {"equipment_category_name": "this_value_is_greater_than_twenty_symbols"}
-#         form = EquipmentsCategoriesForm(data=data)
-#         self.assertFalse(form.is_valid())
-#         response = self.client.post(reverse("equipment:add_category"), data)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, "equipment_accounting/add_category.html")
+        # Спроба створення екземпляру класу з даними з кількістю знаків менше min
+        data_less_min = {"equipment_category_name": "Ca"}
 
-#     @unittest.skip
-#     def test_min_length_of_category_name(self):
-#         data = {"equipment_category_name": "ab"}
-#         form = EquipmentsCategoriesForm(data=data)
-#         self.assertFalse(form.is_valid())
-#         response = self.client.post(reverse("equipment:add_category"), data)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, "equipment_accounting/add_category.html")
+        form_less_min = EquipmentsCategoriesForm(data=data_less_min)
+        self.assertFalse(form_less_min.is_valid())
 
-#     @unittest.skip
-#     def test_change_category(self):
-#         category1 = EquipmentsCategories.objects.get(equipment_category_name="Category1")
-#         change_data = {"equipment_category_name": "ChangeCategory1"}
-#         response = self.client.post(reverse("equipment:change_category", args=[category1.id]), change_data)
-#         self.assertEqual(response.status_code, 302)
-#         self.assertRedirects(response, reverse("equipment:get_category"))
-#         self.assertEqual(EquipmentsCategories.objects.get(id=category1.id).equipment_category_name, "ChangeCategory1")
+        response_add_less_min = self.client_user_head.post(reverse("equipment:add_category"), data_less_min)
+        self.assertEqual(response_add_less_min.status_code, 200)
+        self.assertEqual(EquipmentsCategories.objects.count(), 2)
+        self.assertTemplateUsed(response_add_less_min, "equipment_accounting/add_category.html")
 
-#     @unittest.skip
-#     def test_delete_category(self):
-#         category1 = EquipmentsCategories.objects.get(equipment_category_name="Category1")
-#         response = self.client.post(reverse("equipment:delete_category", args=[category1.id]))
-#         self.assertEqual(response.status_code, 302)
-#         self.assertRedirects(response, reverse("equipment:get_category"))
-#         self.assertEqual(EquipmentsCategories.objects.count(), 0)
+        # Спроба створення екземпляру класу з даними з кількістю знаків бідьше за max
+        data_greater_max = {"equipment_category_name": "this_value_is_greater_than_twenty_symbols"}
+
+        form_greater_max = EquipmentsCategoriesForm(data=data_greater_max)
+        self.assertFalse(form_greater_max.is_valid())
+
+        response_add_greater_max = self.client_user_head.post(reverse("equipment:add_category"), data_greater_max)
+        self.assertEqual(response_add_greater_max.status_code, 200)
+        self.assertEqual(EquipmentsCategories.objects.count(), 2)
+        self.assertTemplateUsed(response_add_greater_max, "equipment_accounting/add_category.html")
+
+    # @unittest.skip
+    def test_change_category(self):
+        # Отримання екземпляру класу EquipmentsCategories
+        category1 = EquipmentsCategories.objects.get(equipment_category_name="Category_1")
+        
+        # Перевірка доступу неавторизованого користувача
+        response = self.client.get(reverse('equipment:change_category', args=[category1.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/equipment/category/change_category/1')
+
+        # Перевірка доступу авторизованого користувача user_member без дозволу додавати обладнання
+        response_member = self.client_user_member.get(reverse('equipment:change_category', args=[category1.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, "/equipment/")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Head"
+        response_head = self.client_user_head.get(reverse('equipment:change_category', args=[category1.id]))
+        self.assertEqual(response_head.status_code, 200)
+        self.assertTemplateUsed(response_head, "equipment_accounting/change_category.html")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Equipment_manager"
+        response_equipment_manager = self.client_equipment_manager.get(reverse('equipment:change_category', args=[category1.id]))
+        self.assertEqual(response_equipment_manager.status_code, 200)
+        self.assertTemplateUsed(response_equipment_manager, "equipment_accounting/change_category.html")
+
+        # Зміна даних екземпляру класу з задовільними даними
+        change_data = {"equipment_category_name": "Change_Category1"}
+        response_change = self.client_equipment_manager.post(reverse("equipment:change_category", args=[category1.id]), change_data)
+        self.assertEqual(response_change.status_code, 302)
+        self.assertRedirects(response_change, reverse("equipment:get_category"))
+        self.assertEqual(EquipmentsCategories.objects.get(id=category1.id).equipment_category_name, "Change_Category1")
+
+        # Зміна даних екземпляру класу з дублюванням даними
+        change_data_twin = {"equipment_category_name": "Change_Category1"}
+        response_change_twin = self.client_equipment_manager.post(reverse(
+                                                                            "equipment:change_category",
+                                                                            args=[category1.id]
+                                                                            ), change_data_twin)
+        self.assertEqual(response_change_twin.status_code, 200)
+        self.assertTemplateUsed(response_change_twin, "equipment_accounting/change_category.html")
+
+        # Зміна даних екземпляру класу з даними з кількістю знаків менше min
+        change_data_less_min = {"equipment_category_name": "Ch"}
+        response_change_less_min = self.client_equipment_manager.post(reverse(
+                                                                            "equipment:change_category",
+                                                                            args=[category1.id]
+                                                                            ), change_data_less_min)
+        self.assertEqual(response_change_less_min.status_code, 200)
+        self.assertTemplateUsed(response_change_less_min, "equipment_accounting/change_category.html")
+        self.assertNotEqual(EquipmentsCategories.objects.get(id=category1.id).equipment_category_name, "Ch")
+
+        # Зміна даних екземпляру класу з даними з кількістю знаків більше max
+        change_data_greater_max = {"equipment_category_name": "this_value_is_greater_than_twenty_symbols"}
+        response_change_greater_max = self.client_equipment_manager.post(reverse(
+                                                                                "equipment:change_category",
+                                                                                args=[category1.id]
+                                                                                ), change_data_greater_max)
+        self.assertEqual(response_change_greater_max.status_code, 200)
+        self.assertTemplateUsed(response_change_greater_max, "equipment_accounting/change_category.html")
+        self.assertNotEqual(
+                            EquipmentsCategories.objects.get(id=category1.id).equipment_category_name,
+                            "this_value_is_greater_than_twenty_symbols"
+                            )
+
+    # @unittest.skip
+    def test_delete_category(self):
+        # Створення екземпляра класа EquipmentsCategories
+        category_for_del = EquipmentsCategories.objects.create(equipment_category_name="Category_del")
+        category_for_del_id = category_for_del.id
+        
+        # Перевірка доступу неавторизованого користувача
+        response = self.client.get(reverse('equipment:delete_category', args=[category_for_del.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f'/login/?next=/equipment/category/delete_category/{category_for_del_id}')
+
+        # Перевірка доступу авторизованого користувача user_member без дозволу додавати обладнання
+        response_member = self.client_user_member.get(reverse('equipment:delete_category', args=[category_for_del.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, "/equipment/")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Head"
+        response_head = self.client_user_head.get(reverse('equipment:delete_category', args=[category_for_del.id]))
+        self.assertEqual(response_head.status_code, 200)
+        self.assertTemplateUsed(response_head, "equipment_accounting/delete_category.html")
+
+        # Перевірка доступу авторизованого користувача з дозволом від "Equipment_manager"
+        response_equipment_manager = self.client_equipment_manager.get(reverse('equipment:delete_category', args=[category_for_del.id]))
+        self.assertEqual(response_equipment_manager.status_code, 200)
+        self.assertTemplateUsed(response_equipment_manager, "equipment_accounting/delete_category.html")
+        
+        # Перевірка видалення категорії авторизованим користувачем з дозволом від "Equipment_manager"
+        count_categorys = EquipmentsCategories.objects.count()
+        response_del = self.client_equipment_manager.post(reverse("equipment:delete_category", args=[category_for_del.id]))
+        self.assertEqual(response_del.status_code, 302)
+        self.assertRedirects(response_del, reverse("equipment:get_category"))
+        self.assertEqual(EquipmentsCategories.objects.count(), count_categorys-1)
 
 
 
