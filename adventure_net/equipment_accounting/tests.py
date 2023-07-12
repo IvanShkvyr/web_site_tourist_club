@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client
 from .models import Equipments, EquipmentsCategories, EquipmentBooking
 from users.models import UserPositions
-from .forms import EquipmentsCategoriesForm
+from .forms import EquipmentsCategoriesForm, EquipmentsForm
 
 
 class EquipmentViewTest(TestCase):
@@ -131,6 +131,103 @@ class EquipmentViewTest(TestCase):
         self.assertEqual(new_equipment.equipment_description, "new_equipment_2_description")
         self.assertEqual(new_equipment.photo_of_equipment, "default_tool.png")
 
+        # Спроба додати екземпляр класу з даними з кількістю знаків менше min в полі equipment_name
+        data_less_min_name = {
+                            "equipment_name": "Ne",
+                            "weight_of_equipment_kg": 120.2,
+                            "equipment_description": "new_equipment_2_description",
+                            "photo_of_equipment": "default_tool.png",
+                            "current_user": self.user_head.id,
+                            "equipment_category": equipment_category_test_2,
+                            }
+
+        count_equipments_before = Equipments.objects.count()
+        form_less_min_name = EquipmentsForm(data=data_less_min_name)
+        self.assertFalse(form_less_min_name.is_valid())
+        
+        response_add_less_min_name = self.client_user_head.post(reverse("equipment:add_equipment"), data_less_min_name)
+        self.assertEqual(response_add_less_min_name.status_code, 200)
+        self.assertTemplateUsed(response_add_less_min_name, "equipment_accounting/add_equipment.html")
+        self.assertEqual(count_equipments_before, Equipments.objects.count())
+
+        # Спроба додати екземпляр класу з даними з кількістю знаків більше max в полі equipment_name
+        long_value = "x" * 51
+        data_greater_max_name = {
+                            "equipment_name": long_value,
+                            "weight_of_equipment_kg": 120.2,
+                            "equipment_description": "new_equipment_2_description",
+                            "photo_of_equipment": "default_tool.png",
+                            "current_user": self.user_head.id,
+                            "equipment_category": equipment_category_test_2,
+                            }
+
+        count_equipments_before = Equipments.objects.count()
+        form_greater_max_name = EquipmentsForm(data=data_greater_max_name)
+        self.assertFalse(form_greater_max_name.is_valid())
+        
+        response_add_greater_max_name = self.client_user_head.post(reverse("equipment:add_equipment"), data_greater_max_name)
+        self.assertEqual(response_add_greater_max_name.status_code, 200)
+        self.assertTemplateUsed(response_add_greater_max_name, "equipment_accounting/add_equipment.html")
+        self.assertEqual(count_equipments_before, Equipments.objects.count())
+
+        # Спроба додати екземпляр класу з даними менше 0 в полі weight_of_equipment_kg
+        data_negative_value_weight = {
+                            "equipment_name": "New_equipment_test",
+                            "weight_of_equipment_kg": -10,
+                            "equipment_description": "new_equipment_2_description",
+                            "photo_of_equipment": "default_tool.png",
+                            "current_user": self.user_head.id,
+                            "equipment_category": equipment_category_test_2,
+                            }
+
+        count_equipments_before = Equipments.objects.count()
+        form_negative_value_weight = EquipmentsForm(data=data_negative_value_weight)
+        self.assertFalse(form_negative_value_weight.is_valid())
+        
+        response_add_negative_value_weight = self.client_user_head.post(reverse("equipment:add_equipment"), data_negative_value_weight)
+        self.assertEqual(response_add_negative_value_weight.status_code, 200)
+        self.assertTemplateUsed(response_add_negative_value_weight, "equipment_accounting/add_equipment.html")
+        self.assertEqual(count_equipments_before, Equipments.objects.count())
+
+        # Спроба додати екземпляр класу з даними з кількістю знаків менше min в полі equipment_description
+        data_less_min_des = {
+                            "equipment_name": "New_equipment_test",
+                            "weight_of_equipment_kg": 10,
+                            "equipment_description": "ne",
+                            "photo_of_equipment": "default_tool.png",
+                            "current_user": self.user_head.id,
+                            "equipment_category": equipment_category_test_2,
+                            }
+
+        count_equipments_before = Equipments.objects.count()
+        form_less_min_des = EquipmentsForm(data=data_less_min_des)
+        self.assertFalse(form_less_min_des.is_valid())
+        
+        response_less_min_des = self.client_user_head.post(reverse("equipment:add_equipment"), data_less_min_des)
+        self.assertEqual(response_less_min_des.status_code, 200)
+        self.assertTemplateUsed(response_less_min_des, "equipment_accounting/add_equipment.html")
+        self.assertEqual(count_equipments_before, Equipments.objects.count())
+
+        # Спроба додати екземпляр класу з даними з кількістю знаків більше max в полі equipment_description
+        long_value_2 = "x" * 151
+        data_greater_max_des = {
+                            "equipment_name": "New_equipment_test",
+                            "weight_of_equipment_kg": 10,
+                            "equipment_description": long_value_2,
+                            "photo_of_equipment": "default_tool.png",
+                            "current_user": self.user_head.id,
+                            "equipment_category": equipment_category_test_2,
+                            }
+
+        count_equipments_before = Equipments.objects.count()
+        form_greater_max_des = EquipmentsForm(data=data_greater_max_des)
+        self.assertFalse(form_greater_max_des.is_valid())
+        
+        response_greater_max_des = self.client_user_head.post(reverse("equipment:add_equipment"), data_greater_max_des)
+        self.assertEqual(response_greater_max_des.status_code, 200)
+        self.assertTemplateUsed(response_greater_max_des, "equipment_accounting/add_equipment.html")
+        self.assertEqual(count_equipments_before, Equipments.objects.count())
+
     # @unittest.skip
     def test_delete_equipment(self):
 
@@ -229,6 +326,38 @@ class EquipmentViewTest(TestCase):
         self.assertEqual(equipment_updated.equipment_name, "New_equipment_5")
         self.assertEqual(equipment_updated.weight_of_equipment_kg, 120.5)
         self.assertEqual(equipment_updated.equipment_description, "new_equipment_4_description")
+
+        # Спроба внесення змін з даними з кількістю знаків менше min в полі equipment_name
+        change_data_less_min_name = {"equipment_name": "Ne"}
+
+        form_less_min_name = EquipmentsForm(data=change_data_less_min_name)
+        self.assertFalse(form_less_min_name.is_valid())
+
+        # Спроба внесення змін з даними з кількістю знаків більше max в полі equipment_name
+        long_value = "x" * 51
+        change_data_greater_max_name = {"equipment_name": long_value}
+
+        form_greater_max_name = EquipmentsForm(data=change_data_greater_max_name)
+        self.assertFalse(form_greater_max_name.is_valid())
+
+        # Спроба внесення змін з даними менше 0 в полі weight_of_equipment_kg
+        change_data_negative_value_weight = {"weight_of_equipment_kg": -10}
+
+        form_negative_value_weight = EquipmentsForm(data=change_data_negative_value_weight)
+        self.assertFalse(form_negative_value_weight.is_valid())
+        
+        # Спроба внесення змін з даними з кількістю знаків менше min в полі equipment_description
+        change_data_less_min_des = {"equipment_description": "Ne"}
+
+        form_less_min_des = EquipmentsForm(data=change_data_less_min_des)
+        self.assertFalse(form_less_min_des.is_valid())
+
+        # Спроба внесення змін з даними з кількістю знаків більше max в полі equipment_description
+        long_value_2 = "x" * 151
+        change_data_greater_max_des = {"equipment_description": long_value_2}
+
+        form_greater_max_des = EquipmentsForm(data=change_data_greater_max_des)
+        self.assertFalse(form_greater_max_des.is_valid())
 
     # @unittest.skip
     def test_detail_equipment(self):
@@ -491,6 +620,62 @@ class CategoruViewTest(TestCase):
         self.assertEqual(EquipmentsCategories.objects.count(), count_categorys-1)
 
 
+class EquipmentBookingViewTest(TestCase):
+
+    def setUp(self):
+        User = get_user_model()
+
+        # Авторизація користувача user_member
+        self.client_user_member = Client()
+        username_member = 'testuser_Member'
+        password_member = 'testpassword_Member'
+        self.user_member = User.objects.create_user(username=username_member, password=password_member)
+        self.client_user_member.force_login(self.user_member)
+
+        # Авторизація користувача user_head
+        self.client_user_head = Client()
+        username_head = 'testuser_Head'
+        password_head = 'testpassword_Head'
+        self.user_head = User.objects.create_user(username=username_head, password=password_head)
+        self.client_user_head.force_login(self.user_head)
+
+        position_name_head = "Head"
+        position_head, created = UserPositions.objects.get_or_create(positions_category=position_name_head)
+        self.user_head.profile.user_position.add(position_head)
+
+        # Авторизація користувача user_equipment_manager
+        self.client_equipment_manager = Client()
+        username_equipment_manager = 'testuser_Equipment_manager'
+        password_equipment_manager = 'testpassword_Equipment_manager'
+        self.user_equipment_manager = User.objects.create_user(
+                                                          username=username_equipment_manager,
+                                                          password=password_equipment_manager
+                                                         )
+        self.client_equipment_manager.force_login(self.user_equipment_manager)
+
+        position_name_equipment_manager = "Equipment manager"
+        position_equipment_manager, created = UserPositions.objects.get_or_create(positions_category=position_name_equipment_manager)
+        self.user_equipment_manager.profile.user_position.add(position_equipment_manager)
+
+        # створення екземпляра класу Equipments
+        category = EquipmentsCategories.objects.create(equipment_category_name="Category_1")
+        equipment = Equipments.objects.create(
+            equipment_name="new_equipment_1",
+            weight_of_equipment_kg=120,
+            equipment_description="new_equipment_1_description",
+            photo_of_equipment="default_tool.png",
+            current_user=self.user_member,
+        )
+        equipment.equipment_category.add(category)
+
+        # створення екземпляра класу EquipmentBooking
+        equipment_booking_1 = EquipmentBooking.objects.create(
+            booking_date_from = datetime.now(),
+            booking_date_to = datetime.now() + timedelta(days=7)
+        )
+
+        equipment_booking_1.club_member.add(self.user_member)
+        equipment_booking_1.reserved_equipment.add(equipment)
 
 
 
