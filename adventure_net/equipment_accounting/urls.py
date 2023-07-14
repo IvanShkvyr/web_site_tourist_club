@@ -13,7 +13,7 @@ urlpatterns = [
     path("category/add_category", views.add_category, name="add_category"), # add equipment category
     path("category/change_category/<int:category_id>", views.change_category, name="change_category"), # change equipment category
     path("category/delete_category/<int:category_id>", views.delete_category, name="delete_category"), # delete equipment category
-    path("category/book_equipment/<int:equipment_id>", views.book_equipment, name="book_equipment"),
-    path("category/get_book_equipment/<int:equipment_id>", views.get_book_equipment, name="get_book_equipment"),
-    path("category/cancel_equipment_reservation/<int:book_equipment_id>", views.cancel_equipment_reservation, name="cancel_equipment_reservation"),
+    path("book_equipment/<int:equipment_id>", views.book_equipment, name="book_equipment"),
+    path("get_book_equipment/<int:equipment_id>", views.get_book_equipment, name="get_book_equipment"),
+    path("cancel_equipment_reservation/<int:book_equipment_id>", views.cancel_equipment_reservation, name="cancel_equipment_reservation"),
 ]

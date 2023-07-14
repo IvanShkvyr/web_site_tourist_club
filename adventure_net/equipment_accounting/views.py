@@ -372,7 +372,6 @@ def book_equipment(request, equipment_id):
     equipment = get_object_or_404(Equipments, pk=equipment_id)
     if request.method == "POST":
         form = BookingEquipmentsForm(request.POST)
-        print(form)
         if form.is_valid():
             booking_date_from = form.cleaned_data.get("booking_date_from")
             booking_date_to = form.cleaned_data.get("booking_date_to")
