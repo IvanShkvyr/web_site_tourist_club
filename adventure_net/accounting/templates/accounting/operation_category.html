@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %} category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
+<div class="modal">
+  <h2>Category</h2>
+<a class="link" href="{% url 'equipment:add_category' %}" role="button"><button class="btn btn-right" type="button"> Add category</button></a>
+
+
+<ul class="list" >
+    {% for category in categories%}
+    <li class="items items-left">
+      {{category.equipment_category_name}}
+      
+      <div class="buttons buttons-right">
+      <a class="link" href="{% url 'equipment:change_category' category.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+      <a class="link" href="{% url 'equipment:delete_category' category.id %}" role="button" class="contrast"><button class="btn btn-right" type="button"> Delete</button></a>
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}

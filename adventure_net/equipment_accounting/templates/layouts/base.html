@@ -57,7 +57,7 @@
 <!--                <a class="navbar-brand mr-5" href="contact_book/">Contact book</a>-->
                         <a class="link" href="/">Головна</a>
                         {% if user.is_authenticated %}
-                        <a class="link" href="{% url 'users:placeholders' %}">Кошти</a>
+                        <a class="link" href="{% url 'accounting:get_club_treasury' %}">Кошти</a>
                         <a class="link" href="{% url 'equipment:get_equipments' %}">Спорядження</a>
                         <a class="link" href="{% url 'users:club_members' %}">Члени клубу</a>
                         {% endif %}

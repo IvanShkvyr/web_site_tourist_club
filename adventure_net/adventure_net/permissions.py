@@ -6,5 +6,6 @@ PER_CHANGE_PROFILE = ["Head"]
 PER_CHANGE_EQUIPMENTS = ["Equipment manager", "Head"]
 
 
-
+# These permissions are used in the file adventure_net\accounting\views.py
+PER_CHANGE_AMOUNT = ["Accountant", "Head"]
 

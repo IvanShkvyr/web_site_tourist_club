@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %} User position {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
+<div class="modal">
+<a class="link" href="{% url 'accounting:add_operation_category' %}" role="button"><button class="btn btn-right" type="button"> Add operation category</button></a>
+
+
+<ul class="list" >
+    {% for operation_category in operation_categories%}
+    <li class="items-left">
+      {{operation_category.category_name}} - {{operation_category.category_info}}
+      
+      <div class="buttons">
+      <a class="link" href="{% url 'accounting:chenge_operation_category' operation_category.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+      <a class="link" href="{% url 'accounting:delete_operation_category' operation_category.id %}" role="button" class="contrast"><button class="btn btn-right" type="button"> Delete</button></a>
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}
+

@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %} User position {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
+<div class="modal">
+  {% if permission %}
+    <a class="link" href="{% url 'accounting:add_club_treasury' %}" role="button"><button class="btn btn-right" type="button">Add amount</button></a>
+    <a class="link" href="{% url 'accounting:get_operation_category' %}" role="button"><button class="btn btn-right" type="button">Operation category</button></a>
+    <a class="link" href="{% url 'accounting:get_operation_type' %}" role="button"><button class="btn btn-right" type="button">Operation type</button></a>
+  {% endif %}
+<ul class="list" >
+    {% for treasury in treasuries%}
+    <li class="items-left">
+      {{treasury.amount}} - {{treasury.operation_date_time}} - {{treasury.info}} - {{treasury.operation_category}} - {{treasury.operation_type}} - {{treasury.performed_by}}
+
+      <div class="buttons">
+      <a class="link" href="{% url 'accounting:chenge_club_treasury' treasury.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}
