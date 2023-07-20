@@ -24,6 +24,7 @@ urlpatterns = [
     path("equipment/", include("equipment_accounting.urls")),
     path("", include("users.urls")),
     path('map/', include("mapapp.urls")),
+    path('accounting/', include("accounting.urls")),
 ]
 
 if settings.DEBUG:

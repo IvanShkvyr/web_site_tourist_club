@@ -438,7 +438,7 @@ def delete_profile(request, user_id):
     Example:
         delete_profile(request, user_id)
     """
-
+    
     permission = permissions_signup_checker(request)
     if not permission:
         return redirect(to="users:club_members")

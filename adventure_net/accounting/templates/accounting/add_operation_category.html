@@ -1,0 +1,43 @@
+{% extends "layouts/base.html" %} 
+{% block title %} add user position {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
+<form method="POST" action="{% url 'accounting:add_operation_category' %}">
+  {% csrf_token %}
+  <div class="modal">
+
+    <div class="pole">
+      <label class="pole__label">Enter operation category name: </label>
+      {{form.category_name}}
+      <span>{{form.errors.category_name}}</span>
+    </div>
+
+    <div class="pole">
+      <label class="pole__label">Enter operation category info: </label>
+      {{form.category_info}}
+      <span>{{form.errors.category_info}}</span>
+    </div>
+
+   
+    <div class="buttons">
+      <button class="btn" type="submit">Submit</button>
+      <button class="btn" type="reset">
+        <a
+          class="link link-btn"
+          href="{% url 'accounting:get_club_treasury' %}"
+          role="button"
+        >
+          Cancel
+        </a>
+      </button>
+    </div>
+  </div>
+</form>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}
+

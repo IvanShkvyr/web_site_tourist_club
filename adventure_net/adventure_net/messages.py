@@ -38,3 +38,9 @@ MSG_INVALID_BOOKING_PERIOD_OVERLAP = "Період бронювання пере
 MSG_EQUIPMENT_RESERVED_SUCCESSFULLY = "Вітаю! Обладнання заброньовано"
 MSG_BOOKING_PERIOD_DELETED = "Період бронювання успішно видалено!"
 
+# These messages are used in the file adventure_net\accounting\views.py
+MSG_AMOUNT_ADDED = "Кошти були внесені."
+
+MSG_CAT_OPERATION_ADDED = "Категорію надходження успішно додано."
+
+MSG_TYPE_OPERATION_ADDED = "Тип витрат успішно додано."

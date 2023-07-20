@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %} User position {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} 
+{% block content %}
+<div class="modal">
+<a class="link" href="{% url 'accounting:add_operation_type' %}" role="button"><button class="btn btn-right" type="button"> Add operation type</button></a>
+
+
+<ul class="list" >
+    {% for operation_type in operation_types%}
+    <li class="items-left">
+      {{operation_type.type_name}} - {{operation_type.type_info}}
+      
+      <div class="buttons">
+      <a class="link" href="{% url 'accounting:chenge_operation_type' operation_type.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+      <a class="link" href="{% url 'accounting:delete_operation_type' operation_type.id %}" role="button" class="contrast"><button class="btn btn-right" type="button"> Delete</button></a>
+    </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут -->
+{% block javascripts %}{% endblock javascripts %}
+
