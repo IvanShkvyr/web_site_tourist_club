@@ -38,12 +38,12 @@ class TypeOperationForm(ModelForm):
                                 )
 
     class Meta:
-        model = models.OperationCategory
+        model = models.OperationType
         fields = ['type_name', 'type_info']
 
 
 class ClubTreasuryForm(ModelForm):
-    amount =  FloatField(min_value=0, required=True, widget=NumberInput())
+    amount =  FloatField(required=True, widget=NumberInput())
     info = CharField(
                                 min_length=10,
                                 max_length=50,
@@ -53,7 +53,7 @@ class ClubTreasuryForm(ModelForm):
     
     operation_category = ModelChoiceField(queryset=models.OperationCategory.objects.all(), required=True)
     operation_type = ModelChoiceField(queryset=models.OperationType.objects.all(), required=True)
-    performed_by = ModelChoiceField(queryset=User.objects.all(), required=False)
+    performed_by = ModelChoiceField(queryset=User.objects.all(), required=True)
 
     class Meta:
         model = models.ClubTreasury

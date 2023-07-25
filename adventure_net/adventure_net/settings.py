@@ -39,7 +39,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "crispy_forms",
-    "celery",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

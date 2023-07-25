@@ -1,0 +1,48 @@
+{% extends "layouts/base.html" %}
+{% block title %} cange category {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="modal">
+        <h2>Change operation category</h2>
+
+        <div class="pole">
+            <label class="pole__label">Amount: {{ form.amount }}</label>
+            <span>{{ form.amount.errors }}</span>
+          </div>
+    
+          <div class="pole">
+            <label class="pole__label">Info about amount: {{ form.info }}</label>
+            <span>{{ form.info.errors }}</span>
+          </div>
+    
+          <div class="pole">
+            <label class="pole__label">Operation Category: {{ form.operation_category }}</label>
+            <span>{{ form.operation_category.errors }}</span>
+          </div>
+    
+          <div class="pole">
+            <label class="pole__label">Operation Type: {{ form.operation_type }}</label>
+            <span>{{ form.operation_type.errors }}</span>
+          </div>
+    
+          <div class="pole">
+            <label class="pole__label">Performed By: {{ form.performed_by }}</label>
+            <span>{{ form.performed_by.errors }}</span>
+          </div>
+
+    <div class="buttons">
+        <button class="btn change__button_g" type="submit">Submit</button>
+        <button class="btn change__button_r" type="reset" ><a class="link link-btn" href="{% url 'accounting:get_club_treasury' %}" role="button" > Cancel </a></button>
+    </div>
+</div>
+</form>
+
+
+{% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}{% endblock javascripts %}
