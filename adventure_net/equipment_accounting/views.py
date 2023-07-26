@@ -111,7 +111,7 @@ def change_category(request, category_id):
         HttpResponse: The HTTP response object.
 
     Example:
-        change_category(request)
+        change_category(request, category_id)
     """
 
     permission = permissions_equipment_checker(request)
