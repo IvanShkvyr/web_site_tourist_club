@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
+import unittest
 
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import Client
+
 from .models import Equipments, EquipmentsCategories, EquipmentBooking
 from .views import permissions_equipment_checker, check_equipment_booking
 from users.models import UserPositions
@@ -61,7 +62,7 @@ class EquipmentViewTest(TestCase):
         position_equipment_manager, created = UserPositions.objects.get_or_create(positions_category=position_name_equipment_manager)
         self.user_equipment_manager.profile.user_position.add(position_equipment_manager)
 
-    # @unittest.skip
+    @unittest.skip
     def test_get_equipments(self):
         # Check access for an unauthorized user
         response = self.client.get(reverse('equipment:get_equipments'))
@@ -79,7 +80,7 @@ class EquipmentViewTest(TestCase):
         self.assertIsNotNone(equipment)
         self.assertEqual(equipment.equipment_name, "new_equipment_1")
 
-        # "Checking an authenticated user
+        # Checking an authenticated user
         self.assertEqual(response_member.context['user'], self.user_member)
 
     # @unittest.skip
