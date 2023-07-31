@@ -4,11 +4,12 @@ import unittest
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 from .models import OperationCategory, OperationType, ClubTreasury
 from users.models import UserPositions
 
-class OperationCategoryTest(TestCase):
+class AccountingRecordTest(TestCase):
     
     def setUp(self):
         User = get_user_model()
@@ -54,12 +55,128 @@ class OperationCategoryTest(TestCase):
             operation_type=current_operation_type,
         )
 
-
-
     # @unittest.skip
     def test_add_club_treasury(self):
-        pass
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:add_club_treasury'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/add_club_treasury/')
 
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:add_club_treasury'))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:add_club_treasury'))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/add_club_treasury.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:add_club_treasury'))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/add_club_treasury.html")
+
+        # Creating a data of the ClubTreasury class 
+        selected_operation_category = OperationCategory.objects.get(category_name="Category_1")
+        selected_operation_type = OperationType.objects.get(type_name="Type_1")
+        performed_by_user = User.objects.get(username="testuser_accountant")
+
+        new_accounting_record = {
+            "amount": 102.0,
+            "info": "test_add_club_treasury",
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+
+        # Creating new instance Club Treasury, and checking it
+        amount_accounting_records_instance = ClubTreasury.objects.count()
+        new_reverse = reverse("accounting:add_club_treasury")
+        response_add_accounting_record_norm = self.client_user_accountant.post(new_reverse, new_accounting_record)
+        self.assertEqual(ClubTreasury.objects.count(), amount_accounting_records_instance + 1)
+        self.assertEqual(response_add_accounting_record_norm.status_code, 302)
+        self.assertRedirects(response_add_accounting_record_norm, reverse("accounting:get_club_treasury"))
+
+        new_accounting_records = ClubTreasury.objects.get(info="test_add_club_treasury")
+
+        # Checking accounting records values
+        self.assertEqual(new_accounting_records.amount, 102.0)  
+        self.assertEqual(new_accounting_records.info, "test_add_club_treasury")
+        self.assertEqual(new_accounting_records.performed_by, performed_by_user)
+        self.assertEqual(new_accounting_records.operation_category, selected_operation_category)
+        self.assertEqual(new_accounting_records.operation_type, selected_operation_type)
+
+        # Attempt to add an instance of the class with data containing a character count less
+        # than the minimum value in the 'info' field
+        record_less_char = {
+            "amount": 102.0,
+            "info": "less",
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+        amount_instance_2 = ClubTreasury.objects.count()
+        response_wrong_less_char = self.client_user_accountant.post(new_reverse, record_less_char)
+        self.assertEqual(ClubTreasury.objects.count(), amount_instance_2)
+        self.assertEqual(response_wrong_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_less_char, "accounting/add_club_treasury.html")
+
+        # Attempt to add an instance of the class with data containing a character count more
+        # than the maximum value in the 'equipment_name' field
+        long_value = "x" * 51
+        record_more_char = {
+            "amount": 102.0,
+            "info": long_value,
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+        amount_instance_3 = ClubTreasury.objects.count()
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, record_more_char)
+        self.assertEqual(ClubTreasury.objects.count(), amount_instance_3)
+        self.assertEqual(response_wrong_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_more_char, "accounting/add_club_treasury.html")
+
+        # Attempt to add an instance of the class without data "performed_by"
+        record_without_performed_by = {
+            "amount": 102.0,
+            "info": "test_add_club_treasury",
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+        amount_instance_4 = ClubTreasury.objects.count()
+        response_wrong_without_performed_by = self.client_user_accountant.post(new_reverse, record_without_performed_by)
+        self.assertEqual(ClubTreasury.objects.count(), amount_instance_4)
+        self.assertEqual(response_wrong_without_performed_by.status_code, 200)
+        self.assertTemplateUsed(response_wrong_without_performed_by, "accounting/add_club_treasury.html")
+
+        # Attempt to add an instance of the class without data "operation_category"
+        record_without_operation_category = {
+            "amount": 102.0,
+            "info": "test_add_club_treasury",
+            "performed_by": performed_by_user.id,
+            "operation_type": selected_operation_type.id,
+        }
+        amount_instance_5 = ClubTreasury.objects.count()
+        response_wrong_without_operation_category = self.client_user_accountant.post(new_reverse, record_without_operation_category)
+        self.assertEqual(ClubTreasury.objects.count(), amount_instance_5)
+        self.assertEqual(response_wrong_without_operation_category.status_code, 200)
+        self.assertTemplateUsed(response_wrong_without_operation_category, "accounting/add_club_treasury.html")
+
+
+        # Attempt to add an instance of the class without data "operation_type"
+        record_without_operation_type = {
+            "amount": 102.0,
+            "info": "test_add_club_treasury",
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+        }
+        amount_instance_6 = ClubTreasury.objects.count()
+        response_wrong_without_operation_type = self.client_user_accountant.post(new_reverse, record_without_operation_type)
+        self.assertEqual(ClubTreasury.objects.count(), amount_instance_6)
+        self.assertEqual(response_wrong_without_operation_type.status_code, 200)
+        self.assertTemplateUsed(response_wrong_without_operation_type, "accounting/add_club_treasury.html")
 
     # @unittest.skip
     def test_get_club_treasury(self):
@@ -81,23 +198,153 @@ class OperationCategoryTest(TestCase):
         # "Checking an authenticated user
         self.assertEqual(response_member.context['user'], self.user_member)
 
-
-
-
     @unittest.skip
     def test_chenge_club_treasury(self):
         pass
-
 
     @unittest.skip
     def test_permissions_checker(self):
         pass
 
 
-    @unittest.skip
-    def test_add_operation_category(self):
-        pass
+class OperationCategoryTest(TestCase):
+    
+    def setUp(self):
+        User = get_user_model()
 
+        # Authentication of user_member
+        self.client_user_member = Client()
+        username_member = "testuser_member"
+        password_member = "testpassword_member"
+        self.user_member = User.objects.create_user(username=username_member, password=password_member)
+        self.client_user_member.force_login(self.user_member)
+
+        # Authentication of user_head
+        self.client_user_head = Client()
+        username_head = "testuser_head"
+        password_head = "testpassword_head"
+        self.user_head = User.objects.create_user(username=username_head, password=password_head)
+        self.client_user_head.force_login(self.user_head)
+
+        position_name_head = "Head"
+        position_head, created = UserPositions.objects.get_or_create(positions_category=position_name_head)
+        self.user_head.profile.user_position.add(position_head)
+
+        # Authentication of accountant
+        self.client_user_accountant = Client()
+        username_accountant = "testuser_accountant"
+        password_accountant = "testpassword_accountant"
+        self.user_accountant = User.objects.create_user(username=username_accountant, password=password_accountant)
+        self.client_user_accountant.force_login(self.user_accountant)
+
+        position_name_accountant = "Accountant"
+        position_accountant, created = UserPositions.objects.get_or_create(positions_category=position_name_accountant)
+        self.user_accountant.profile.user_position.add(position_accountant)
+
+        # Creating an instance of the OperationCategory class 
+        OperationCategory.objects.create(category_name="Category_1", category_info="Test_info_category")
+
+    # @unittest.skip
+    def test_add_operation_category(self):
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:add_operation_category'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/operation_category/add_opr_category/')
+
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:add_operation_category'))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:add_operation_category'))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/add_operation_category.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:add_operation_category'))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/add_operation_category.html")
+
+        # Creating a data of the OperationCategory class 
+        data_new_operation_category = {
+            "category_name":"Category_2",
+            "category_info":"test_add_operation_category",
+        }
+        
+        # Creating new instance OperationCategory, and checking it
+        amount_category_records_instance = OperationCategory.objects.count()
+        new_reverse = reverse("accounting:add_operation_category")
+        response_add_category_record_norm = self.client_user_accountant.post(new_reverse, data_new_operation_category)
+        self.assertEqual(OperationCategory.objects.count(), amount_category_records_instance + 1)
+        self.assertEqual(response_add_category_record_norm.status_code, 302)
+        self.assertRedirects(response_add_category_record_norm, reverse('accounting:get_club_treasury'))
+        # Checking accounting records values
+        new_category_records = OperationCategory.objects.get(category_name="Category_2")
+        self.assertEqual(new_category_records.category_info, "test_add_operation_category")
+
+        # Attempt to add an instance of the class with data containing a character count less
+        # than the minimum value in the 'category_name' field
+        data_wrong_category_name_less = {
+            "category_name":"Ca",
+            "category_info":"test_add_operation_category",
+        }
+        amount_instance_2 = OperationCategory.objects.count()
+        response_wrong_less_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_less)
+        self.assertEqual(OperationCategory.objects.count(), amount_instance_2)
+        self.assertEqual(response_wrong_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_less_char, "accounting/add_operation_category.html")
+
+        # Attempt to add an instance of the class with data containing a character count less
+        # than the minimum value in the 'category_name' field
+        long_value = "x" * 51
+        data_wrong_category_name_more = {
+            "category_name":long_value,
+            "category_info":"test_add_operation_category",
+        }
+        amount_instance_3 = OperationCategory.objects.count()
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        self.assertEqual(OperationCategory.objects.count(), amount_instance_3)
+        self.assertEqual(response_wrong_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_more_char, "accounting/add_operation_category.html")
+
+
+        # Attempt to add an instance of the class with data containing a character count less
+        # than the minimum value in the 'category_info' field
+        data_wrong_category_name_less = {
+            "category_name":"Category_3",
+            "category_info":"test",
+        }
+        amount_instance_4 = OperationCategory.objects.count()
+        response_wrong_info_less_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_less)
+        self.assertEqual(OperationCategory.objects.count(), amount_instance_4)
+        self.assertEqual(response_wrong_info_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_less_char, "accounting/add_operation_category.html")
+
+        # Attempt to add an instance of the class with data containing a character count more
+        # than the minimum value in the 'category_info' field
+        long_value_info = "x" * 101
+        data_wrong_category_name_more = {
+            "category_name":"Category_4",
+            "category_info":long_value_info,
+        }
+        amount_instance_5 = OperationCategory.objects.count()
+        response_wrong_info_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        self.assertEqual(OperationCategory.objects.count(), amount_instance_5)
+        self.assertEqual(response_wrong_info_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_more_char, "accounting/add_operation_category.html")
+
+        # Attempt to add an instance of the class with data containing duplicate category_name data
+
+        data_wrong_duplicate_category_name = {
+            "category_name":"Category_1",
+            "category_info":"test_add_operation_category",
+        }
+        amount_instance_6 = OperationCategory.objects.count()
+        response_wrong_duplicate_category_name = self.client_user_accountant.post(new_reverse, data_wrong_duplicate_category_name)
+        self.assertEqual(OperationCategory.objects.count(), amount_instance_6)
+        self.assertEqual(response_wrong_duplicate_category_name.status_code, 200)
+        self.assertTemplateUsed(response_wrong_duplicate_category_name, "accounting/add_operation_category.html")
 
     # @unittest.skip
     def test_get_operation_category(self):
@@ -126,21 +373,150 @@ class OperationCategoryTest(TestCase):
         self.assertIsNotNone(operation_category_record)
         self.assertEqual(operation_category_record.category_info, "Test_info_category")
 
-
     @unittest.skip
     def test_chenge_operation_category(self):
         pass
-
 
     @unittest.skip
     def test_delete_operation_category(self):
         pass
 
 
-    @unittest.skip
-    def test_add_operation_type(self):
-        pass
+class OperationTypeTest(TestCase):
+    
+    def setUp(self):
+        User = get_user_model()
 
+        # Authentication of user_member
+        self.client_user_member = Client()
+        username_member = "testuser_member"
+        password_member = "testpassword_member"
+        self.user_member = User.objects.create_user(username=username_member, password=password_member)
+        self.client_user_member.force_login(self.user_member)
+
+        # Authentication of user_head
+        self.client_user_head = Client()
+        username_head = "testuser_head"
+        password_head = "testpassword_head"
+        self.user_head = User.objects.create_user(username=username_head, password=password_head)
+        self.client_user_head.force_login(self.user_head)
+
+        position_name_head = "Head"
+        position_head, created = UserPositions.objects.get_or_create(positions_category=position_name_head)
+        self.user_head.profile.user_position.add(position_head)
+
+        # Authentication of accountant
+        self.client_user_accountant = Client()
+        username_accountant = "testuser_accountant"
+        password_accountant = "testpassword_accountant"
+        self.user_accountant = User.objects.create_user(username=username_accountant, password=password_accountant)
+        self.client_user_accountant.force_login(self.user_accountant)
+
+        position_name_accountant = "Accountant"
+        position_accountant, created = UserPositions.objects.get_or_create(positions_category=position_name_accountant)
+        self.user_accountant.profile.user_position.add(position_accountant)
+
+        # Creating an instance of the OperationCategory class 
+        OperationType.objects.create(type_name="Type_1", type_info="Test_info_type")
+
+    # @unittest.skip
+    def test_add_operation_type(self):
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:add_operation_type'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/operation_type/add_operation_type/')
+
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:add_operation_type'))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:add_operation_type'))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/add_operation_type.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:add_operation_type'))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/add_operation_type.html")
+
+        # Creating new instance OperationType, and checking it
+        data_new_operation_type = {
+            "type_name":"type_2",
+            "type_info":"test_add_operation_type",
+        }
+        amount_type_records_instance = OperationType.objects.count()
+        new_reverse = reverse("accounting:add_operation_type")
+        response_add_type_record_norm = self.client_user_accountant.post(new_reverse, data_new_operation_type)
+        self.assertEqual(OperationType.objects.count(), amount_type_records_instance + 1)
+        self.assertEqual(response_add_type_record_norm.status_code, 302)
+        self.assertRedirects(response_add_type_record_norm, reverse('accounting:get_club_treasury'))
+        # Checking accounting records values
+        new_type_records = OperationType.objects.get(type_name="type_2")
+        self.assertEqual(new_type_records.type_info, "test_add_operation_type")
+
+        # Attempt to add an instance of the class with data containing a character count less
+        # than the minimum value in the 'type_name' field
+        data_wrong_type_name_less = {
+            "type_name":"ty",
+            "type_info":"test_add_operation_type",
+        }
+        amount_instance_2 = OperationType.objects.count()
+        response_wrong_less_char = self.client_user_accountant.post(new_reverse, data_wrong_type_name_less)
+        self.assertEqual(OperationType.objects.count(), amount_instance_2)
+        self.assertEqual(response_wrong_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_less_char, "accounting/add_operation_type.html")
+
+        # # Attempt to add an instance of the class with data containing a character count less
+        # # than the minimum value in the 'category_name' field
+        long_value = "x" * 51
+        data_wrong_category_name_more = {
+            "type_name":long_value,
+            "type_info":"test_add_operation_type",
+        }
+        amount_instance_3 = OperationType.objects.count()
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        self.assertEqual(OperationType.objects.count(), amount_instance_3)
+        self.assertEqual(response_wrong_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_more_char, "accounting/add_operation_type.html")
+
+
+        # Attempt to add an instance of the class with data containing a character count less
+        # than the minimum value in the 'type_info' field
+        data_wrong_category_name_less = {
+            "type_name":"type_3",
+            "type_info":"test",
+        }
+        amount_instance_4 = OperationType.objects.count()
+        response_wrong_info_less_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_less)
+        self.assertEqual(OperationType.objects.count(), amount_instance_4)
+        self.assertEqual(response_wrong_info_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_less_char, "accounting/add_operation_type.html")
+
+        # Attempt to add an instance of the class with data containing a character count more
+        # than the minimum value in the 'type_info' field
+        long_value_info = "x" * 101
+        data_wrong_category_name_more = {
+            "type_name":"type_2",
+            "type_info":data_wrong_category_name_more,
+        }
+        amount_instance_5 = OperationType.objects.count()
+        response_wrong_info_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        self.assertEqual(OperationType.objects.count(), amount_instance_5)
+        self.assertEqual(response_wrong_info_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_more_char, "accounting/add_operation_type.html")
+
+        # Attempt to add an instance of the class with data containing duplicate type_name data
+        data_wrong_duplicate_type_name = {
+            "type_name":"Type_1",
+            "type_info":"test_add_operation_type",
+        }
+        amount_instance_6 = OperationType.objects.count()
+        response_wrong_duplicate_category_name = self.client_user_accountant.post(new_reverse, data_wrong_duplicate_type_name)
+        self.assertEqual(OperationType.objects.count(), amount_instance_6)
+        self.assertEqual(response_wrong_duplicate_category_name.status_code, 200)
+        self.assertTemplateUsed(response_wrong_duplicate_category_name, "accounting/add_operation_type.html")
 
     # @unittest.skip
     def test_get_operation_type(self):
@@ -169,11 +545,9 @@ class OperationCategoryTest(TestCase):
         self.assertIsNotNone(operation_type_record)
         self.assertEqual(operation_type_record.type_info, "Test_info_type")
 
-
     @unittest.skip
     def test_chenge_operation_type(self):
         pass
-
 
     @unittest.skip
     def test_delete_operation_type(self):
