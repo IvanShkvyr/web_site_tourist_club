@@ -5,9 +5,13 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 
 from .models import OperationCategory, OperationType, ClubTreasury
 from users.models import UserPositions
+from adventure_net.messages import MSG_TYPE_OPERATION_DELETE, MSG_TYPE_OPERATION_ADDED, \
+    MSG_CAT_OPERATION_ADDED, MSG_AMOUNT_ADDED, MSG_TYPE_OPERATION_DELETE_ERR, \
+    MSG_CAT_OPERATION_DELETE, MSG_CAT_OPERATION_DELETE_ERR
 
 class AccountingRecordTest(TestCase):
     
@@ -106,6 +110,10 @@ class AccountingRecordTest(TestCase):
         self.assertEqual(new_accounting_records.performed_by, performed_by_user)
         self.assertEqual(new_accounting_records.operation_category, selected_operation_category)
         self.assertEqual(new_accounting_records.operation_type, selected_operation_type)
+
+        storage = get_messages(response_add_accounting_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_AMOUNT_ADDED, messages)
 
         # Attempt to add an instance of the class with data containing a character count less
         # than the minimum value in the 'info' field
@@ -283,6 +291,10 @@ class OperationCategoryTest(TestCase):
         new_category_records = OperationCategory.objects.get(category_name="Category_2")
         self.assertEqual(new_category_records.category_info, "test_add_operation_category")
 
+        storage = get_messages(response_add_category_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_CAT_OPERATION_ADDED, messages)
+
         # Attempt to add an instance of the class with data containing a character count less
         # than the minimum value in the 'category_name' field
         data_wrong_category_name_less = {
@@ -377,9 +389,65 @@ class OperationCategoryTest(TestCase):
     def test_chenge_operation_category(self):
         pass
 
-    @unittest.skip
+    # @unittest.skip
     def test_delete_operation_category(self):
-        pass
+        # Creating an instance of the OperationCategory class 
+        OperationCategory.objects.create(category_name="Cat_del", category_info="Test_info_category")
+        del_operation_category = OperationCategory.objects.get(category_name="Cat_del")
+
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:delete_operation_category', args=[del_operation_category.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/operation_category/delete_opr_category/2/')
+
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:delete_operation_category', args=[del_operation_category.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:delete_operation_category', args=[del_operation_category.id]))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/delete_operation_category.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:delete_operation_category', args=[del_operation_category.id]))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/delete_operation_category.html")
+
+        # Checking deletion of a type by an authorized user with permission from "Accountant"
+        count_categories = OperationCategory.objects.count()
+        response_del = self.client_user_accountant.post(reverse("accounting:delete_operation_category", args=[del_operation_category.id]))
+        self.assertEqual(response_del.status_code, 302)
+        self.assertRedirects(response_del, reverse("accounting:get_operation_category"))
+        self.assertEqual(OperationCategory.objects.count(), count_categories-1) 
+
+        storage = get_messages(response_del.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_CAT_OPERATION_DELETE, messages)
+
+        # Attempt to delete operation_type wich conected with ClubTreasury object
+        new_operation_category = OperationCategory.objects.create(category_name="Cat_del_2", category_info="Test_info_category")
+        new_operation_type = OperationType.objects.create(type_name="Type_del_2", type_info="Test_info_type")
+        ClubTreasury.objects.create(
+            amount=100,
+            operation_date_time=datetime.now(),
+            info="Accounting_record_for_delete",
+            performed_by=self.user_member,
+            operation_category=new_operation_category,
+            operation_type=new_operation_type,
+        )
+        operation_category_for_delete = OperationCategory.objects.get(category_name="Cat_del_2")
+
+        count_categories_2 = OperationCategory.objects.count()
+        response_del_wrong = self.client_user_accountant.post(reverse("accounting:delete_operation_category", args=[operation_category_for_delete.id]))
+        self.assertEqual(response_del_wrong.status_code, 302)
+        self.assertRedirects(response_del_wrong, reverse("accounting:get_operation_category"))
+        self.assertEqual(OperationCategory.objects.count(), count_categories_2) 
+
+        storage = get_messages(response_del_wrong.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_CAT_OPERATION_DELETE_ERR, messages)
 
 
 class OperationTypeTest(TestCase):
@@ -518,6 +586,10 @@ class OperationTypeTest(TestCase):
         self.assertEqual(response_wrong_duplicate_category_name.status_code, 200)
         self.assertTemplateUsed(response_wrong_duplicate_category_name, "accounting/add_operation_type.html")
 
+        storage = get_messages(response_add_type_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_TYPE_OPERATION_ADDED, messages)
+
     # @unittest.skip
     def test_get_operation_type(self):
         # Check access for an unauthorized user
@@ -549,16 +621,62 @@ class OperationTypeTest(TestCase):
     def test_chenge_operation_type(self):
         pass
 
-    @unittest.skip
+    # @unittest.skip
     def test_delete_operation_type(self):
-        pass
+        # Creating an instance of the OperationCategory class 
+        OperationType.objects.create(type_name="Type_del", type_info="Test_info_type")
+        del_operation_type = OperationType.objects.get(type_name="Type_del")
 
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:delete_operation_type', args=[del_operation_type.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/operation_type/delete_operation_type/2/')
 
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:delete_operation_type', args=[del_operation_type.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
 
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:delete_operation_type', args=[del_operation_type.id]))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/delete_operation_type.html")
 
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:delete_operation_type', args=[del_operation_type.id]))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/delete_operation_type.html")
 
+        # Checking deletion of a type by an authorized user with permission from "Accountant"
+        count_types = OperationType.objects.count()
+        response_del = self.client_user_accountant.post(reverse("accounting:delete_operation_type", args=[del_operation_type.id]))
+        self.assertEqual(response_del.status_code, 302)
+        self.assertRedirects(response_del, reverse("accounting:get_operation_type"))
+        self.assertEqual(OperationType.objects.count(), count_types-1) 
 
+        storage = get_messages(response_del.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_TYPE_OPERATION_DELETE, messages)
 
+        # Attempt to delete operation_type wich conected with ClubTreasury object
+        new_operation_category = OperationCategory.objects.create(category_name="Category_del", category_info="Test_info_category")
+        new_operation_type = OperationType.objects.create(type_name="Type_del_2", type_info="Test_info_type")
+        ClubTreasury.objects.create(
+            amount=100,
+            operation_date_time=datetime.now(),
+            info="Accounting_record_for_delete",
+            performed_by=self.user_member,
+            operation_category=new_operation_category,
+            operation_type=new_operation_type,
+        )
+        operation_type_for_delete = OperationType.objects.get(type_name="Type_del_2")
 
+        count_types_2 = OperationType.objects.count()
+        response_del_wrong = self.client_user_accountant.post(reverse("accounting:delete_operation_type", args=[operation_type_for_delete.id]))
+        self.assertEqual(response_del_wrong.status_code, 302)
+        self.assertRedirects(response_del_wrong, reverse("accounting:get_operation_type"))
+        self.assertEqual(OperationType.objects.count(), count_types_2) 
 
-
+        storage = get_messages(response_del_wrong.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_TYPE_OPERATION_DELETE_ERR, messages)

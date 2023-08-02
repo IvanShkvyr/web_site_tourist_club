@@ -437,7 +437,7 @@ def delete_operation_type(request, operation_type_id):
     if request.method == "POST":
         if ClubTreasury.objects.filter(operation_type=operation_type).exists():
             messages.error(request, MSG_TYPE_OPERATION_DELETE_ERR)
-            return redirect(to="accounting:get_operation_category")
+            return redirect(to="accounting:get_operation_type")
         operation_type.delete()
         messages.success(request, MSG_TYPE_OPERATION_DELETE)
         return redirect(to="accounting:get_operation_type")
