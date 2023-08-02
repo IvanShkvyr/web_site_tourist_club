@@ -855,7 +855,10 @@ class EquipmentBookingViewTest(TestCase):
                                 'booking_date_to': booking_date_to_4
                                 }
         count_bookings = EquipmentBooking.objects.count()
-        response_overlap = self.client_user_member.post(reverse('equipment:book_equipment', args=[equipment_book.id]), data_overlap)
+        response_overlap = self.client_user_member.post(reverse(
+                                                                'equipment:book_equipment',
+                                                                args=[equipment_book.id]
+                                                                ), data_overlap)
 
         self.assertEqual(response_overlap.status_code, 200)
         form_norm = BookingEquipmentsForm(data=data)
