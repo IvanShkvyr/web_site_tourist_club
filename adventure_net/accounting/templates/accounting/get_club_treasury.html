@@ -16,7 +16,7 @@
       {{treasury.amount}} - {{treasury.operation_date_time}} - {{treasury.info}} - {{treasury.operation_category}} - {{treasury.operation_type}} - {{treasury.performed_by}}
       {% if permission %}
       <div class="buttons">
-      <a class="link" href="{% url 'accounting:chenge_club_treasury' treasury.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+      <a class="link" href="{% url 'accounting:change_club_treasury' treasury.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
     </div>
     {% endif %}
     </li>

@@ -11,7 +11,8 @@ from .models import OperationCategory, OperationType, ClubTreasury
 from users.models import UserPositions
 from adventure_net.messages import MSG_TYPE_OPERATION_DELETE, MSG_TYPE_OPERATION_ADDED, \
     MSG_CAT_OPERATION_ADDED, MSG_AMOUNT_ADDED, MSG_TYPE_OPERATION_DELETE_ERR, \
-    MSG_CAT_OPERATION_DELETE, MSG_CAT_OPERATION_DELETE_ERR
+    MSG_CAT_OPERATION_DELETE, MSG_CAT_OPERATION_DELETE_ERR, MSG_TYPE_OPERATION_UPDATED, \
+    MSG_CAT_OPERATION_UPDATED
 
 class AccountingRecordTest(TestCase):
     
@@ -207,7 +208,7 @@ class AccountingRecordTest(TestCase):
         self.assertEqual(response_member.context['user'], self.user_member)
 
     @unittest.skip
-    def test_chenge_club_treasury(self):
+    def test_change_club_treasury(self):
         pass
 
     @unittest.skip
@@ -320,7 +321,6 @@ class OperationCategoryTest(TestCase):
         self.assertEqual(response_wrong_more_char.status_code, 200)
         self.assertTemplateUsed(response_wrong_more_char, "accounting/add_operation_category.html")
 
-
         # Attempt to add an instance of the class with data containing a character count less
         # than the minimum value in the 'category_info' field
         data_wrong_category_name_less = {
@@ -347,7 +347,6 @@ class OperationCategoryTest(TestCase):
         self.assertTemplateUsed(response_wrong_info_more_char, "accounting/add_operation_category.html")
 
         # Attempt to add an instance of the class with data containing duplicate category_name data
-
         data_wrong_duplicate_category_name = {
             "category_name":"Category_1",
             "category_info":"test_add_operation_category",
@@ -385,9 +384,103 @@ class OperationCategoryTest(TestCase):
         self.assertIsNotNone(operation_category_record)
         self.assertEqual(operation_category_record.category_info, "Test_info_category")
 
-    @unittest.skip
-    def test_chenge_operation_category(self):
-        pass
+    # @unittest.skip
+    def test_change_operation_category(self):
+        # Creating an instance of the OperationCategory class 
+        OperationCategory.objects.create(category_name="Cat_cha", category_info="Test_info_category")
+        cha_operation_category = OperationCategory.objects.get(category_name="Cat_cha")
+
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:change_operation_category', args=[cha_operation_category.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/operation_category/change_opr_category/2/')
+
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:change_operation_category', args=[cha_operation_category.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:change_operation_category', args=[cha_operation_category.id]))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/change_operation_category.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:change_operation_category', args=[cha_operation_category.id]))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/change_operation_category.html")
+
+        # Creating a data of the OperationCategory class 
+        data_change_operation_category = {
+            "category_name":"Cat_change",
+            "category_info":"test_change_operation_category",
+        }
+        
+        # Chanhe instance OperationCategory, and checking it
+        amount_category_records_instance = OperationCategory.objects.count()
+        new_reverse = reverse('accounting:change_operation_category', args=[cha_operation_category.id])
+        response_change_category_record_norm = self.client_user_accountant.post(new_reverse, data_change_operation_category)
+        self.assertEqual(OperationCategory.objects.count(), amount_category_records_instance)
+        self.assertEqual(response_change_category_record_norm.status_code, 302)
+        self.assertRedirects(response_change_category_record_norm, reverse('accounting:get_operation_category'))
+        # Checking accounting records values
+        new_category_records = OperationCategory.objects.get(category_name="Cat_change")
+        self.assertEqual(new_category_records.category_info, "test_change_operation_category")
+
+        storage = get_messages(response_change_category_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_CAT_OPERATION_UPDATED, messages)
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'category_name' field
+        data_wrong_category_name_less = {
+            "category_name":"Ca",
+            "category_info":"test_change_operation_category",
+        }
+        response_wrong_less_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_less)
+        self.assertEqual(response_wrong_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_less_char, "accounting/change_operation_category.html")
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'category_name' field
+        long_value = "x" * 51
+        data_wrong_category_name_more = {
+            "category_name":long_value,
+            "category_info":"test_change_operation_category",
+        }
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        self.assertEqual(response_wrong_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_more_char, "accounting/change_operation_category.html")
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'category_info' field
+        data_wrong_category_name_less = {
+            "category_name":"Cat_cha_2",
+            "category_info":"test",
+        }
+        response_wrong_info_less_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_less)
+        self.assertEqual(response_wrong_info_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_less_char, "accounting/change_operation_category.html")
+
+        # Attempt to change an instance of the class with data containing a character count more
+        # than the minimum value in the 'category_info' field
+        long_value_info = "x" * 101
+        data_wrong_category_name_more = {
+            "category_name":"Cat_cha_2",
+            "category_info":long_value_info,
+        }
+        response_wrong_info_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        self.assertEqual(response_wrong_info_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_more_char, "accounting/change_operation_category.html")
+
+        # Attempt to change an instance of the class with data containing duplicate category_name data
+        data_wrong_duplicate_category_name = {
+            "category_name":"Category_1",
+            "category_info":"test_change_operation_category",
+        }
+        response_wrong_duplicate_category_name = self.client_user_accountant.post(new_reverse, data_wrong_duplicate_category_name)
+        self.assertEqual(response_wrong_duplicate_category_name.status_code, 200)
+        self.assertTemplateUsed(response_wrong_duplicate_category_name, "accounting/change_operation_category.html")
 
     # @unittest.skip
     def test_delete_operation_category(self):
@@ -524,6 +617,10 @@ class OperationTypeTest(TestCase):
         new_type_records = OperationType.objects.get(type_name="type_2")
         self.assertEqual(new_type_records.type_info, "test_add_operation_type")
 
+        storage = get_messages(response_add_type_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_TYPE_OPERATION_ADDED, messages)
+
         # Attempt to add an instance of the class with data containing a character count less
         # than the minimum value in the 'type_name' field
         data_wrong_type_name_less = {
@@ -537,14 +634,14 @@ class OperationTypeTest(TestCase):
         self.assertTemplateUsed(response_wrong_less_char, "accounting/add_operation_type.html")
 
         # # Attempt to add an instance of the class with data containing a character count less
-        # # than the minimum value in the 'category_name' field
+        # # than the minimum value in the 'type_name' field
         long_value = "x" * 51
-        data_wrong_category_name_more = {
+        data_wrong_type_name_more = {
             "type_name":long_value,
             "type_info":"test_add_operation_type",
         }
         amount_instance_3 = OperationType.objects.count()
-        response_wrong_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, data_wrong_type_name_more)
         self.assertEqual(OperationType.objects.count(), amount_instance_3)
         self.assertEqual(response_wrong_more_char.status_code, 200)
         self.assertTemplateUsed(response_wrong_more_char, "accounting/add_operation_type.html")
@@ -567,7 +664,7 @@ class OperationTypeTest(TestCase):
         long_value_info = "x" * 101
         data_wrong_category_name_more = {
             "type_name":"type_2",
-            "type_info":data_wrong_category_name_more,
+            "type_info":long_value_info,
         }
         amount_instance_5 = OperationType.objects.count()
         response_wrong_info_more_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_more)
@@ -585,10 +682,6 @@ class OperationTypeTest(TestCase):
         self.assertEqual(OperationType.objects.count(), amount_instance_6)
         self.assertEqual(response_wrong_duplicate_category_name.status_code, 200)
         self.assertTemplateUsed(response_wrong_duplicate_category_name, "accounting/add_operation_type.html")
-
-        storage = get_messages(response_add_type_record_norm.wsgi_request)
-        messages = [message.message for message in storage]
-        self.assertIn(MSG_TYPE_OPERATION_ADDED, messages)
 
     # @unittest.skip
     def test_get_operation_type(self):
@@ -617,9 +710,102 @@ class OperationTypeTest(TestCase):
         self.assertIsNotNone(operation_type_record)
         self.assertEqual(operation_type_record.type_info, "Test_info_type")
 
-    @unittest.skip
-    def test_chenge_operation_type(self):
-        pass
+    # @unittest.skip
+    def test_change_operation_type(self):
+        # Creating an instance of the OperationCategory class 
+        OperationType.objects.create(type_name="Type_cha", type_info="Test_info_type")
+        che_operation_type = OperationType.objects.get(type_name="Type_cha")
+
+        # Check access for an unauthorized user
+        response = self.client.get(reverse('accounting:change_operation_type', args=[che_operation_type.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login/?next=/accounting/operation_type/change_operation_type/2/')
+
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(reverse('accounting:change_operation_type', args=[che_operation_type.id]))
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(reverse('accounting:change_operation_type', args=[che_operation_type.id]))
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/change_operation_type.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(reverse('accounting:change_operation_type', args=[che_operation_type.id]))
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/change_operation_type.html")
+
+        # New data for changing, and checking it
+        data_cha_operation_type = {
+            "type_name":"type_cha",
+            "type_info":"test_change_operation_type",
+        }
+        amount_type_records_instance = OperationType.objects.count()
+        new_reverse = reverse("accounting:change_operation_type", args=[che_operation_type.id])
+        response_change_type_record_norm = self.client_user_accountant.post(new_reverse, data_cha_operation_type)
+        self.assertEqual(OperationType.objects.count(), amount_type_records_instance)
+        self.assertEqual(response_change_type_record_norm.status_code, 302)
+        self.assertRedirects(response_change_type_record_norm, reverse('accounting:get_operation_type'))
+        # Checking accounting records values
+        changed_type_records = OperationType.objects.get(type_name="type_cha")
+        self.assertEqual(changed_type_records.type_info, "test_change_operation_type")
+
+        storage = get_messages(response_change_type_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_TYPE_OPERATION_UPDATED, messages)
+
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'type_name' field
+        data_wrong_type_name_less = {
+            "type_name":"ty",
+            "type_info":"test_change_operation_type",
+        }
+        response_wrong_less_char = self.client_user_accountant.post(new_reverse, data_wrong_type_name_less)
+        self.assertEqual(response_wrong_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_less_char, "accounting/change_operation_type.html")
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'type_name' field
+        long_value = "x" * 51
+        data_wrong_type_name_more = {
+            "type_name":long_value,
+            "type_info":"test_add_operation_type",
+        }
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, data_wrong_type_name_more)
+        self.assertEqual(response_wrong_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_more_char, "accounting/change_operation_type.html")
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'type_info' field
+        data_wrong_category_name_less = {
+            "type_name":"type_3",
+            "type_info":"test",
+        }
+        response_wrong_info_less_char = self.client_user_accountant.post(new_reverse, data_wrong_category_name_less)
+        self.assertEqual(response_wrong_info_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_less_char, "accounting/change_operation_type.html")
+
+        # Attempt to change an instance of the class with data containing a character count more
+        # than the minimum value in the 'type_info' field
+        long_value_info = "x" * 101
+        data_wrong_type_name_more = {
+            "type_name":"type_2",
+            "type_info":long_value_info,
+        }
+        response_wrong_info_more_char = self.client_user_accountant.post(new_reverse, data_wrong_type_name_more)
+        self.assertEqual(response_wrong_info_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_info_more_char, "accounting/change_operation_type.html")
+
+        # Attempt to change an instance of the class with data containing duplicate type_name data
+        data_wrong_duplicate_type_name = {
+            "type_name":"Type_1",
+            "type_info":"test_change_operation_type",
+        }
+        response_wrong_duplicate_category_name = self.client_user_accountant.post(new_reverse, data_wrong_duplicate_type_name)
+        self.assertEqual(response_wrong_duplicate_category_name.status_code, 200)
+        self.assertTemplateUsed(response_wrong_duplicate_category_name, "accounting/change_operation_type.html")
 
     # @unittest.skip
     def test_delete_operation_type(self):
