@@ -12,8 +12,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from adventure_net.messages import MSG_AMOUNT_ADDED, MSG_INVALID_DATA, \
     MSG_CAT_OPERATION_ADDED, MSG_TYPE_OPERATION_ADDED, MSG_ACCESS_DENIED, \
-    MSG_TYPE_OPERATION_DELETE, MSG_CAT_OPERATION_DELETE, MSG_TYPE_OPERATION_CHENGE, \
-    MSG_CAT_OPERATION_CHENGE, MSG_AMOUNT_CHANGE, MSG_CAT_OPERATION_DELETE_ERR, \
+    MSG_TYPE_OPERATION_DELETE, MSG_CAT_OPERATION_DELETE, MSG_TYPE_OPERATION_UPDATED, \
+    MSG_CAT_OPERATION_UPDATED, MSG_AMOUNT_UPDATED, MSG_CAT_OPERATION_DELETE_ERR, \
     MSG_TYPE_OPERATION_DELETE_ERR
 from adventure_net.permissions import PER_CHANGE_AMOUNT
 from users.models import Profile
@@ -93,7 +93,7 @@ def get_club_treasury(request):
 
 
 @decorators.login_required(login_url='/login/')
-def chenge_club_treasury(request, treasury_id):
+def change_club_treasury(request, treasury_id):
     """
     Change data of the funds accounting record
 
@@ -121,7 +121,7 @@ def chenge_club_treasury(request, treasury_id):
 
         if form.is_valid():
             form.save()
-            messages.success(request, MSG_AMOUNT_CHANGE)
+            messages.success(request, MSG_AMOUNT_UPDATED)
             return redirect(to="accounting:get_club_treasury")
 
         messages.error(request, MSG_INVALID_DATA)
@@ -205,7 +205,7 @@ def get_operation_category(request):
 
 
 @decorators.login_required(login_url='/login/')
-def chenge_operation_category(request, operation_category_id):
+def change_operation_category(request, operation_category_id):
     """
     Change data of the operation category
 
@@ -240,7 +240,7 @@ def chenge_operation_category(request, operation_category_id):
                 return render(request, "accounting/change_operation_category.html", context)
 
             form.save()
-            messages.success(request, MSG_CAT_OPERATION_CHENGE)
+            messages.success(request, MSG_CAT_OPERATION_UPDATED)
             return redirect(to="accounting:get_operation_category")
 
         messages.error(request, MSG_INVALID_DATA)
@@ -361,7 +361,7 @@ def get_operation_type(request):
 
 
 @decorators.login_required(login_url='/login/')
-def chenge_operation_type(request, operation_type_id):
+def change_operation_type(request, operation_type_id):
     """
     Change data of the operation type.
 
@@ -396,7 +396,7 @@ def chenge_operation_type(request, operation_type_id):
                 return render(request, "accounting/change_operation_type.html", context)
 
             form.save()
-            messages.success(request, MSG_TYPE_OPERATION_CHENGE)
+            messages.success(request, MSG_TYPE_OPERATION_UPDATED)
             return redirect(to="accounting:get_operation_type")
 
         messages.error(request, MSG_INVALID_DATA)

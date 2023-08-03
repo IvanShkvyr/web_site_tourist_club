@@ -14,7 +14,7 @@
       {{operation_category.category_name}} - {{operation_category.category_info}}
       
       <div class="buttons">
-      <a class="link" href="{% url 'accounting:chenge_operation_category' operation_category.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
+      <a class="link" href="{% url 'accounting:change_operation_category' operation_category.id %}" role="button"><button class="btn btn-right" type="button"> Change</button></a>
       <a class="link" href="{% url 'accounting:delete_operation_category' operation_category.id %}" role="button" class="contrast"><button class="btn btn-right" type="button"> Delete</button></a>
     </div>
     </li>
