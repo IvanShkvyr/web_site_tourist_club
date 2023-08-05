@@ -12,7 +12,8 @@ from users.models import UserPositions
 from adventure_net.messages import MSG_TYPE_OPERATION_DELETE, MSG_TYPE_OPERATION_ADDED, \
     MSG_CAT_OPERATION_ADDED, MSG_AMOUNT_ADDED, MSG_TYPE_OPERATION_DELETE_ERR, \
     MSG_CAT_OPERATION_DELETE, MSG_CAT_OPERATION_DELETE_ERR, MSG_TYPE_OPERATION_UPDATED, \
-    MSG_CAT_OPERATION_UPDATED
+    MSG_CAT_OPERATION_UPDATED, MSG_AMOUNT_UPDATED
+from .views import permissions_checker
 
 class AccountingRecordTest(TestCase):
     
@@ -132,7 +133,7 @@ class AccountingRecordTest(TestCase):
         self.assertTemplateUsed(response_wrong_less_char, "accounting/add_club_treasury.html")
 
         # Attempt to add an instance of the class with data containing a character count more
-        # than the maximum value in the 'equipment_name' field
+        # than the maximum value in the 'info' field
         long_value = "x" * 51
         record_more_char = {
             "amount": 102.0,
@@ -207,13 +208,150 @@ class AccountingRecordTest(TestCase):
         # "Checking an authenticated user
         self.assertEqual(response_member.context['user'], self.user_member)
 
-    @unittest.skip
+    # @unittest.skip
     def test_change_club_treasury(self):
-        pass
+        # Creating an instance of the OperationCategory class 
+        new_operation_category = OperationCategory.objects.create(category_name="Cat_c", category_info="Test_info_category")
+        new_operation_type = OperationType.objects.create(type_name="Type_c", type_info="Test_info_type")
+        ClubTreasury.objects.create(
+            amount=120,
+            operation_date_time=datetime.now(),
+            info="Test_accounting_record_for_changing",
+            performed_by=self.user_member,
+            operation_category=new_operation_category,
+            operation_type=new_operation_type,
+        )
+        accounting_record = ClubTreasury.objects.get(info="Test_accounting_record_for_changing")
+        new_reverse = reverse('accounting:change_club_treasury', args=[accounting_record.id])
 
-    @unittest.skip
+        # Check access for an unauthorized user
+        response = self.client.get(new_reverse)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f'/login/?next=/accounting/change_club_treasury/{accounting_record.id}/')
+
+        # Check access for an authorized user 'user_member'
+        response_member = self.client_user_member.get(new_reverse)
+        self.assertEqual(response_member.status_code, 302)
+        self.assertRedirects(response_member, '/accounting/')
+
+        # Check access for an authorized user 'user_head'
+        response_user_head = self.client_user_head.get(new_reverse)
+        self.assertEqual(response_user_head.status_code, 200)
+        self.assertTemplateUsed(response_user_head, "accounting/change_club_treasury.html")
+
+        # Check access for an authorized user 'accountant'
+        response_accountant = self.client_user_accountant.get(new_reverse)
+        self.assertEqual(response_accountant.status_code, 200)
+        self.assertTemplateUsed(response_accountant, "accounting/change_club_treasury.html")
+
+        # Creating a data of the ClubTreasury class 
+        selected_operation_category = OperationCategory.objects.get(category_name="Category_1")
+        selected_operation_type = OperationType.objects.get(type_name="Type_1")
+        performed_by_user = User.objects.get(username="testuser_accountant")
+        change_accounting_record = {
+            "amount": 102.0,
+            "info": "test_change_club_treasury",
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+
+        # Creating new instance Club Treasury, and checking it
+        amount_accounting_records_instance = ClubTreasury.objects.count()
+        response_change_accounting_record_norm = self.client_user_accountant.post(new_reverse, change_accounting_record)
+        self.assertEqual(ClubTreasury.objects.count(), amount_accounting_records_instance)
+        self.assertEqual(response_change_accounting_record_norm.status_code, 302)
+        self.assertRedirects(response_change_accounting_record_norm, reverse("accounting:get_club_treasury"))
+        new_accounting_records = ClubTreasury.objects.get(info="test_change_club_treasury")
+
+        # Checking accounting records values
+        self.assertEqual(new_accounting_records.amount, 102.0)  
+        self.assertEqual(new_accounting_records.performed_by, performed_by_user)
+        self.assertEqual(new_accounting_records.operation_category, selected_operation_category)
+        self.assertEqual(new_accounting_records.operation_type, selected_operation_type)
+
+        storage = get_messages(response_change_accounting_record_norm.wsgi_request)
+        messages = [message.message for message in storage]
+        self.assertIn(MSG_AMOUNT_UPDATED, messages)
+
+        # Attempt to change an instance of the class with data containing a character count less
+        # than the minimum value in the 'info' field
+        record_less_char = {
+            "amount": 101.0,
+            "info": "less",
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+        response_wrong_less_char = self.client_user_accountant.post(new_reverse, record_less_char)
+        self.assertEqual(response_wrong_less_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_less_char, "accounting/change_club_treasury.html")
+
+        # Attempt to change an instance of the class with data containing a character count more
+        # than the maximum value in the 'info' field
+        long_value = "x" * 51
+        record_more_char = {
+            "amount": 102.0,
+            "info": long_value,
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+        response_wrong_more_char = self.client_user_accountant.post(new_reverse, record_more_char)
+        self.assertEqual(response_wrong_more_char.status_code, 200)
+        self.assertTemplateUsed(response_wrong_more_char, "accounting/change_club_treasury.html")
+
+        # Attempt to change an instance of the class without data "performed_by"
+        record_without_performed_by = {
+            "amount": 102.0,
+            "info": "test_change_club_treasury_2",
+            "operation_category": selected_operation_category.id,
+            "operation_type": selected_operation_type.id,
+        }
+        response_wrong_without_performed_by = self.client_user_accountant.post(new_reverse, record_without_performed_by)
+        self.assertEqual(response_wrong_without_performed_by.status_code, 200)
+        self.assertTemplateUsed(response_wrong_without_performed_by, "accounting/change_club_treasury.html")
+
+        # Attempt to change an instance of the class without data "operation_category"
+        record_without_operation_category = {
+            "amount": 102.0,
+            "info": "test_change_club_treasury_2",
+            "performed_by": performed_by_user.id,
+            "operation_type": selected_operation_type.id,
+        }
+        response_wrong_without_operation_category = self.client_user_accountant.post(new_reverse, record_without_operation_category)
+        self.assertEqual(response_wrong_without_operation_category.status_code, 200)
+        self.assertTemplateUsed(response_wrong_without_operation_category, "accounting/change_club_treasury.html")
+
+        # Attempt to change an instance of the class without data "operation_type"
+        record_without_operation_type = {
+            "amount": 102.0,
+            "info": "test_change_club_treasury_2",
+            "performed_by": performed_by_user.id,
+            "operation_category": selected_operation_category.id,
+        }
+        response_wrong_without_operation_type = self.client_user_accountant.post(new_reverse, record_without_operation_type)
+        self.assertEqual(response_wrong_without_operation_type.status_code, 200)
+        self.assertTemplateUsed(response_wrong_without_operation_type, "accounting/change_club_treasury.html")
+
+    # @unittest.skip
     def test_permissions_checker(self):
-        pass
+        # Checking permissions_equipment_checker
+        request_member = self.client_user_member.request().wsgi_request
+        request_head = self.client_user_head.request().wsgi_request
+        request_accountant = self.client_user_accountant.request().wsgi_request
+
+        # Checking user_member
+        has_permissions_member = permissions_checker(request_member)
+        self.assertFalse(has_permissions_member)
+
+        # Checking user_head
+        has_permissions_head = permissions_checker(request_head)
+        self.assertTrue(has_permissions_head)
+
+        # Checking user_accountant
+        has_permissions_accountant = permissions_checker(request_accountant)
+        self.assertTrue(has_permissions_accountant)
 
 
 class OperationCategoryTest(TestCase):

@@ -108,7 +108,7 @@ def change_club_treasury(request, treasury_id):
         HttpResponse: The HTTP response object.
 
     Example:
-        chenge_club_treasury(request, treasury_id)
+        change_club_treasury(request, treasury_id)
     """
 
     permission = permissions_checker(request)
@@ -126,10 +126,10 @@ def change_club_treasury(request, treasury_id):
 
         messages.error(request, MSG_INVALID_DATA)
         context = {"form": form, "current_record": current_record}
-        return render(request, "accounting/chenge_club_treasury.html", context)
+        return render(request, "accounting/change_club_treasury.html", context)
     form = ClubTreasuryForm(instance=current_record)
     contex = {"form": form, "current_record": current_record}
-    return render(request, "accounting/chenge_club_treasury.html", contex)
+    return render(request, "accounting/change_club_treasury.html", contex)
 
 
 @decorators.login_required(login_url='/login/')
