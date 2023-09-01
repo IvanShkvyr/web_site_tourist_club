@@ -2,7 +2,9 @@
 {% block title %} cange category {% endblock %}
 
 <!-- Специфічний CSS буде тут -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}{% endblock stylesheets %} 
+
+{% block content %}
 
 <form method="POST">
     {% csrf_token %}
