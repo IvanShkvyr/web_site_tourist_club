@@ -1,0 +1,52 @@
+{% extends "layouts/base.html" %}
+{% block title %} add user position {% endblock %}
+
+<!-- Специфічний CSS буде тут -->
+{% block stylesheets %}{% endblock %} 
+{% block content %}
+<!-- <div class="modal"> -->
+    <!-- <h3>Map</h3> -->
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          }),
+          // Додайте шар для відображення об'єктів "Клубіні місця"
+          new ol.layer.Vector({
+            source: new ol.source.Vector({
+              features: [
+                {% for place in club_places %}
+                new ol.Feature({
+                  geometry: new ol.geom.Point(ol.proj.fromLonLat([{{ place.longitude }}, {{ place.latitude }}])),
+                  name: '{{ place.name }}',
+                  water_access: {{ place.water_access|yesno:"true,false" }},
+                  description: '{{ place.description }}'
+                }),
+                {% endfor %}
+              ]
+            }),
+            style: new ol.style.Style({
+              image: new ol.style.Circle({
+                radius: 6,
+                fill: new ol.style.Fill({ color: 'blue' }),
+                stroke: new ol.style.Stroke({ color: 'white', width: 2 })
+              })
+            })
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([30.59, 50.43]),
+          zoom: 9
+        })
+      });
+    </script>
+    
+<!-- </div> -->
+{% endblock content %}
+
+<!-- Специфічний JS буде тут  -->
+{% block javascripts %}
+{% endblock javascripts %}

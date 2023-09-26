@@ -69,7 +69,7 @@ def placeholders(request):
 
     return render(request, 'users/placeholders.html', context={"msg": MSG_PLACEHOLDERS})
 
-
+@decorators.login_required
 def signup_user(request):
     """
     Registers a new user.
@@ -100,8 +100,8 @@ def signup_user(request):
             messages.success(request, MSG_USER_DATA_ADDED)
             return redirect(to="users:main")
         messages.error(request, MSG_INVALID_DATA)
-        return render(request, 'users/singup.html', context={'form': form})
-    return render(request, 'users/singup.html', context={'form': RegisterForm()})
+        return render(request, 'users/signup.html', context={'form': form})
+    return render(request, 'users/signup.html', context={'form': RegisterForm()})
 
 
 def login_user(request):
