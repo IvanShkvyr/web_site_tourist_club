@@ -6,6 +6,7 @@ class ClubbingSpot(models.Model):
     longitude = models.FloatField()
     water_access = models.BooleanField()
     description = models.CharField(max_length=255)
+    kml_file = models.FileField(upload_to="kml_files", null=False)
 
     def __str__(self):
         return self.name_spot
